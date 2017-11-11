@@ -1,0 +1,7 @@
+#!/bin/bash
+
+if [ -d "bin" ]; then
+  java -cp bin chess.core.initialize/Main
+else
+  echo "Please run    ./create-chess     then try again"
+fi
