@@ -7,7 +7,6 @@ The run the program
 2. Open terminal/console, change directory to top level of the chess folder and run the following commands:
 
 ```
-chmod a+x *-chess
 ./create-chess
 ```
 Once the `./create-chess` is executed, a new directory should appear alongside `src` and `res` which is called `bin`

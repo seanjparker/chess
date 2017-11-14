@@ -9,5 +9,5 @@ javac -d bin $(find src -name *.java)
 if [ $? ]; then
   echo "Done!"
 else
-  echo "!!Error during compling!!"
+  echo "!!Error during compiling!!"
 fi
