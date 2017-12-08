@@ -6,7 +6,12 @@ public class BoardConstants {
 	public static double squareSize = 0D; //Square size of the chessboard squares
 	public static int border = 10; //Boder width of the GUI
 	public static int PVS_DEPTH = 1; //Search depth of the AI
-	public static int gameMode = -1; //Which gamemode did the player choose?
+	
+	public static enum Mode {
+	  ONE_PLAYER,
+	  TWO_PLAYER,
+	}
+	public static Mode gamemode = null;
 	
 	public static final long FILE_A = ~(72340172838076673L); //Used to prevent file wraps along the right
 	public static final long FILE_H = ~(-9187201950435737472L); //Used to prevent file wraps along the left
