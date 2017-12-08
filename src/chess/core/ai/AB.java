@@ -1,12 +1,10 @@
 package chess.core.ai;
 
 import java.util.List;
-
 import chess.core.bitboards.BoardConstants;
 import chess.core.bitboards.CBoard;
 import chess.core.bitboards.eval.Evaluation;
 import chess.core.bitboards.moves.Move;
-import chess.core.bitboards.moves.MoveHistory;
 import chess.core.bitboards.moves.Moves;
 import chess.core.utils.Sorting;
 

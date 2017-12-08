@@ -1,65 +1,85 @@
 package chess.core.display;
 
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.event.MouseEvent;
 import java.net.URL;
-
 import javax.swing.ImageIcon;
-import javax.swing.JOptionPane;
-
+import javax.swing.JPanel;
 import chess.core.ai.AB;
 import chess.core.bitboards.BoardConstants;
 import chess.core.bitboards.CBoard;
-import chess.core.bitboards.Type;
 import chess.core.bitboards.moves.Move;
 import chess.core.bitboards.moves.MoveHistory;
 import chess.core.bitboards.moves.Moves;
 import chess.core.display.input.MouseHandler;
 import chess.core.display.window.CreateBoard;
-import chess.core.initialize.Main;
-import chess.core.online.DatabaseUser;
 import chess.core.utils.Timer;
 import chess.core.utils.Utils;
 
-public class GUI {
-	public static final String FILE_PATH = "./saves"; //Relative file path where to save the files
-	private static final String GFX_PATH = "/gfx/chessPieces.png"; //Location of the chess images
-	public static int gameOver = -1; //Game over state
+public class Chessboard extends JPanel {
+	public static final String FILE_PATH = "./saves";
+	private static final String GFX_PATH = "/gfx/chessPieces.png";
+	public static int gameOver = -1; 
 	
-	public String possMoves = ""; //Holds the possible moves of the piece during right click
-	private Image chessPieceImage; //Image of the chess images
-	private Moves m; //Used to access all function in the moves class
+	public String possMoves = "";
+	private Image chessPieceImage;
+	private Moves m;
 	
-	private double squareSize = 0D; //Size of each square on the chess board
+	private double squareSize = 0D;
 	
-	private int width, height; //width and height of the screen
-	private int border = 0; //Boder to offset the chessboard
-	private int draggedIndex = -1; //Which piece is being dragged?
+	private int width, height;
+	private int border = 0;
+	private int draggedIndex = -1; //Which piece is being dragged
 	
-	public GUI(int width, int height) {
-		this.width = width; //Initalize the GUI
+	public Chessboard(int width, int height) {
+		this.width = width;
 		this.height = height;
-		m = new Moves(); //Initalize the moves class
+		setPreferredSize(new Dimension(width, height));
+		setLayout(new FlowLayout());
+		m = new Moves();
+	}
+	
+	protected void paintComponent(Graphics g) {
+	    Graphics2D g2 = (Graphics2D) g;
+	    
+	    drawBorders(g2);
+	    drawBoard(g2);
+	    drawPieces(g2);   
+	    drawCaptured(g2);
+	    drawPossible(g2);
+	    drawAlgebraic(g2);
+	    drawPieceAnimation(g2);
+	    //drawTimer(g);
 	}
 
-	public void initGUI() {
-		URL url = GUI.class.getResource(GFX_PATH); //Initalize the image loader
-		chessPieceImage = new ImageIcon(url).getImage(); //Load the image
-	
-		CBoard.initChess(); //Initlaize the chess board
+	public void initChessboard() {
+		URL url = Chessboard.class.getResource(GFX_PATH);
+		chessPieceImage = new ImageIcon(url).getImage();
 		
-		squareSize = BoardConstants.squareSize; //Sets GUI variables
+		CBoard.initChess();
+		
+	    BoardConstants.squareSize = (Math.min(this.getWidth(), this.getHeight()) / 8) - (border*4) ;
+	    BoardConstants.WIDTH_F = this.getWidth() - (border*4);
+	    BoardConstants.HEIGHT_F = this.getHeight() - (border*4);
+	    
+		squareSize = BoardConstants.squareSize;
 		border = BoardConstants.border;
 		width = BoardConstants.WIDTH_F;
 		height = BoardConstants.HEIGHT_F;
+		
+		
+	    setPreferredSize(new Dimension(width, height));
 	}
 	
-	public void drawBoard(Graphics g) { //
-		for (int i = 0; i < 64; i += 2) { //Draw chess board
+	public void drawBoard(Graphics2D g) { 
+		for (int i = 0; i < 64; i += 2) {
 			g.setColor(new Color(240, 240, 240)); //White square
 			g.fillRect((int) ((i % 8 + (i / 8) % 2) * squareSize) + border, (int) ((i / 8) * squareSize) + border, (int) squareSize, (int) squareSize);
 			g.setColor(new Color(135, 135, 135)); //Black square
@@ -67,32 +87,32 @@ public class GUI {
 		}
 	}
 	
-	public void drawBorders(Graphics g) {
+	public void drawBorders(Graphics2D g) {
 		int board = (int) (8 * squareSize);
 		int boardPlusBorder = board + 2 * border;
 		
 		//Color of the game board
 		g.setColor(new Color(15, 70, 90));
 		
-		/* Lines to show bevel on edge */
+		// Lines to show bevel on edge
 		g.fill3DRect(border, 0, board, border, true);
 		g.fill3DRect(0, border, border, board, true);
 		g.fill3DRect(border, border + board, board, border, true);
 		g.fill3DRect(board + border, border, border, board, true);
 		
-		/* Surrounds the piece capture area */
+		// Surrounds the piece capture area
 		g.fillRect(boardPlusBorder, 0, width - boardPlusBorder, border); 
 		g.fillRect(boardPlusBorder, board + border, width - boardPlusBorder, border);
 		g.fillRect(width - border, 0, border, boardPlusBorder);
 		
-		/* Single squares to show raised bevel */
+		// Single squares to show raised bevel
 		g.fill3DRect(0, 0, border, border, true);
 		g.fill3DRect(0, border + board, border, border, true);
 		g.fill3DRect(board + border, 0, border, border, true);
 		g.fill3DRect(board + border, board + border, border, border, true);
 	}
 	
-	public void drawPieces(Graphics g) {
+	public void drawPieces(Graphics2D g) {
 		for (int l = 0; l < CBoard.pieces.length; l++) {
 			for (int k = 0; k < CBoard.pieces[l].length; k++) {
 				long bb = CBoard.pieces[l][k];
@@ -105,7 +125,7 @@ public class GUI {
 		}
 	}
 	
-	public void drawPossible(Graphics g) {
+	public void drawPossible(Graphics2D g) {
 		if (possMoves.length() > 0) { //Once there are moves to display
 			for (int j = 0; j < possMoves.length(); j+= 2) {
 				String tMove = possMoves.substring(j, j + 2); //Parse the string
@@ -120,7 +140,7 @@ public class GUI {
 		}
 	}
 	
-	public void drawCaptured(Graphics g) {
+	public void drawCaptured(Graphics2D g) {
 		if (!MoveHistory.isEmpty()) { //Have moves been played
 			int tCounterW = -1, tCounterB = -1;			
 			int x = (int) (8 * squareSize) + (2 * border); //Gets the x offset
@@ -143,7 +163,7 @@ public class GUI {
 		}
 	}
 	
-	public void drawAlgebraic(Graphics g) {
+	public void drawAlgebraic(Graphics2D g) {
 		if (!MoveHistory.isEmpty()) { //Have moves been played?
 			setText(g, Color.BLUE); //Sets the text colour
 			FontMetrics c = g.getFontMetrics();
@@ -172,7 +192,7 @@ public class GUI {
 		}
 	}
 	
-	public void drawUser(Graphics g) {
+	public void drawUser(Graphics2D g) {
 		setText(g, Color.RED); //Sets the text colour
 		
 		String text = "Logged In: " + BoardConstants.username; //The text to draw
@@ -182,7 +202,7 @@ public class GUI {
 		g.drawString(text, x, y); //Draws the text at the specified location
 	}
 	
-	public void drawPieceAnimation(Graphics g) {		
+	public void drawPieceAnimation(Graphics2D g) {		
 		if (MouseHandler.draggedMouse) { //Is the mouse being dragged
 			int mX = MouseHandler.dMX; //Gets the current x on the screen
 			int mY = MouseHandler.dMY; //Gets the current y on the screen
@@ -193,7 +213,7 @@ public class GUI {
 		}
 	}
 	
-	public void drawTimer(Graphics g, Timer timerWhite, Timer timerBlack) {
+	public void drawTimer(Graphics2D g, Timer timerWhite, Timer timerBlack) {
 		if (getGM() == 3) {
 			if (timerWhite.isFinished()) { gameOver = 0; } //Is the timer finished
 			if (timerBlack.isFinished()) { gameOver = 1; }
@@ -212,13 +232,13 @@ public class GUI {
 		}
 	}
 	
-	private void extraDrawTimes(Graphics g, int[] times, int player) {
+	private void extraDrawTimes(Graphics2D g, int[] times, int player) {
 		int mod = 0;
 		if (player != 0) { mod = g.getFontMetrics().getHeight(); } //Draws whites timer first, then black
 		g.drawString("" + times[2] + "h : " + times[1] + "m : " + times[0] + "s", width - 200, (height / 2) + mod);
 	}
 	
-	private void setText(Graphics g, Color c) {
+	private void setText(Graphics2D g, Color c) {
 		g.setFont(new Font("TimesRoman", Font.BOLD, 18)); //Sets the text font to times new roman and size 18
 		g.setColor(c); //Sets the colour to the one specified
 	}
@@ -254,11 +274,11 @@ public class GUI {
 				String move = Utils.calculateDragMove(mX, mY, nMX, nMY, squareSize); //Formulates the move from mouse positions
 				standardMove(move, p); //Just a normal move if the king is not in check
 				//Switch the timers
-				if (getGM() == 3) {
-					Main.t1.flip(); Main.t2.flip(); //Flips the states of both timers
-				} else if (getGM() == 0 || getGM() == 1) {
-					Main.moveTimer.flip(); //Ensures the move timer records the white players move time correctly
-				}
+				//if (getGM() == 3) {
+				//	Main.t1.flip(); Main.t2.flip(); //Flips the states of both timers
+				//} else if (getGM() == 0 || getGM() == 1) {
+				//	Main.moveTimer.flip(); //Ensures the move timer records the white players move time correctly
+				//}
 			}
 		}
 		if (CBoard.isCreating()) { //Editing the board	
@@ -312,7 +332,7 @@ public class GUI {
 		if (CBoard.kingInCheck(p)) {
 			m.undoMove(p, MoveHistory.getNext());
 		} else {						
-			if (p == 0) { Main.moveTimer.addTime(); } //If white's turn, add a turn time
+			//if (p == 0) { Main.moveTimer.addTime(); } //If white's turn, add a turn time
 			p = CBoard.getPlayer(); //Get the updated player
 			if (CBoard.kingInCheck(p)) { //Did the last move put the other player in check
 				if (CBoard.kingInCheckmate(p)) { //If the king is in check, is the king in checkmate		
@@ -334,14 +354,12 @@ public class GUI {
 	}
 	
 	private void checkmateDialog(int p) {
-		DatabaseUser db = new DatabaseUser();
-		int averageTime = Main.moveTimer.calculateAverage(), v; //Gets the average move time for white
+	    int v;
+		//int averageTime = Main.moveTimer.calculateAverage(); //Gets the average move time for white
 		if (p == 0) {
 			v = Utils.showDialog("Checkmate!!", "Black has won! \nGame Over");
-			if (db.c != null) { playerLost(averageTime, db); } //Update the database score
 		} else {
 			v = Utils.showDialog("Checkmate!!", "White has won! \nGame Over"); //Shows the user won won and lost
-			if (db.c != null) { playerWon(averageTime, db); } //Update the database score
 		}
 		if (v == 0) { //Restart
 			CBoard.reset();
@@ -355,34 +373,25 @@ public class GUI {
 		MoveHistory.peekNext().setCheck(true); //Sets the check status for the current move
 	}
 	public void timedLossDialog() {
-		DatabaseUser db = new DatabaseUser();
-		int averageTime = Main.moveTimer.calculateAverage(), v;
-		Main.t1.pause(); Main.t2.pause();
-		if (CBoard.getPlayer() == 0) {
-			v = Utils.showDialog("Game Over!!", "Black has won due to White's Timer");
-			if (db.c != null) { playerLost(averageTime, db); }
-		} else {
-			v = Utils.showDialog("Game Over!!", "White has won due to Black's Timer");
-			if (db.c != null) { playerWon(averageTime, db); }
-		}
-		gameOver = -1;
-		Main.t1.reset(); Main.t2.reset();
-		if (v == 0) { 
-			CBoard.reset();
-			Main.t1.start(false);
-		} else {
-			Main.t1.start(true);
-		}
-
+		//int averageTime = Main.moveTimer.calculateAverage(), v;
+		//Main.t1.pause(); Main.t2.pause();
+		//if (CBoard.getPlayer() == 0) {
+		//	v = Utils.showDialog("Game Over!!", "Black has won due to White's Timer");
+		//} else {
+		//	v = Utils.showDialog("Game Over!!", "White has won due to Black's Timer");
+		//}
+		//gameOver = -1;
+		//Main.t1.reset(); Main.t2.reset();
+		//if (v == 0) { 
+		//	CBoard.reset();
+		//	Main.t1.start(false);
+		//} else {
+		//	Main.t1.start(true);
+		//}
 	}
-	private void playerWon(int averageTime, DatabaseUser db) {
-		db.setUserStats(1, 0, 0, Integer.toString(averageTime), BoardConstants.username); //Updates the number of wins
+	
+	//Gets the current game mode 
+	public int getGM() {
+	  return BoardConstants.gameMode;
 	}
-	private void playerLost(int averageTime, DatabaseUser db) {
-		db.setUserStats(0, 1, 0, Integer.toString(averageTime), BoardConstants.username); //Updates the number of losses
-	}
-	private void playerDrew(int averageTime, DatabaseUser db) {
-		db.setUserStats(0, 0, 1, Integer.toString(averageTime), BoardConstants.username); //Updates the number of draws
-	}
-	public int getGM() { return BoardConstants.gameMode; } //Gets the current game mode 
 }
