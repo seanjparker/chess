@@ -5,10 +5,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-
 import javax.swing.JOptionPane;
-
-import chess.core.bitboards.CBoard;
+import chess.core.bitboards.Board;
 import chess.core.bitboards.Type;
 import chess.core.bitboards.moves.MoveHistory;
 import chess.core.initialize.BitboardInit;
@@ -25,18 +23,19 @@ public class FEN {
 		String FENRecord = ""; //fen record that is written to the file
 		int emptyCount = 0; //counter for a string of empty spaces
 		
-		for (int i = 0; i < CBoard.pieces.length; i++) {
-			for (int j = 0; j < CBoard.pieces[i].length; j++) {
-				long bb = CBoard.pieces[i][j];	//Gets the current bitboard			
+		
+		
+		for (int i = 0; i < Board.pieces.length; i++) {
+			int p = i < 6 ? 1 : 2;
+				long bb = Board.getPieceBoard(i, p);	//Gets the current bitboard			
 				while (bb != 0) {
 					int bitPos = Utils.bitPosition(bb); //Gets the new bit from the bitboard
-					if (j == 0) { //If white, upper case character, otherwise, black and lowercase
+					if (p == 1) { //If white, upper case character, otherwise, black and lowercase
 						board[bitPos/8][bitPos%8] = Type.tPieceChar[i].toUpperCase().charAt(0);							
 					} else {
 						board[bitPos/8][bitPos%8] = Type.tPieceChar[i].toLowerCase().charAt(0);
 					}
 					bb &= bb - 1; //Set bitboard for the next bit
-				}
 			}
 		}
 		for (int y = 0; y < board.length; y++) { //Converts the 2D array to a single String record
@@ -62,17 +61,17 @@ public class FEN {
 		}
 		
 		//Side to move
-		if (CBoard.getPlayer() == 0) { FENRecord += " w "; } 
+		if (Board.getPlayer() == 0) { FENRecord += " w "; } 
 		else { FENRecord += " b "; }
 		
 		//Castling ability
-		if (CBoard.getCWL() && CBoard.getCWS() && CBoard.getCBL() && CBoard.getCBS()) {
+		if (Board.getCWL() && Board.getCWS() && Board.getCBL() && Board.getCBS()) {
 			FENRecord += " - ";
 		} else {
-			if (!CBoard.getCWS()) { FENRecord += "K"; }
-			if (!CBoard.getCWL()) { FENRecord += "Q"; }
-			if (!CBoard.getCBS()) { FENRecord += "k"; }
-			if (!CBoard.getCBL()) { FENRecord += "q"; }
+			if (!Board.getCWS()) { FENRecord += "K"; }
+			if (!Board.getCWL()) { FENRecord += "Q"; }
+			if (!Board.getCBS()) { FENRecord += "k"; }
+			if (!Board.getCBL()) { FENRecord += "q"; }
 		}
 		
 		//Fullmove counter
@@ -184,8 +183,8 @@ public class FEN {
 			}
 		}
 		BitboardInit.arrayToBitboard(chessBoard); //Use the 2D array to apply data to bitboards
-		CBoard.setCWS(CWS); CBoard.setCWL(CWL); //Sets the castleing ability
-		CBoard.setCBS(CBS); CBoard.setCBL(CBL);		
-		CBoard.setPlayer(sideToMove); //Sets which player is to move
+		Board.setCWS(CWS); Board.setCWL(CWL); //Sets the castleing ability
+		Board.setCBS(CBS); Board.setCBL(CBL);		
+		Board.setPlayer(sideToMove); //Sets which player is to move
 	}
 }

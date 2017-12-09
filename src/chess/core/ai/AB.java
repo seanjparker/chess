@@ -1,8 +1,8 @@
 package chess.core.ai;
 
 import java.util.List;
+import chess.core.bitboards.Board;
 import chess.core.bitboards.BoardConstants;
-import chess.core.bitboards.CBoard;
 import chess.core.bitboards.eval.Evaluation;
 import chess.core.bitboards.moves.Move;
 import chess.core.bitboards.moves.Moves;
@@ -27,7 +27,7 @@ public class AB {
 	
 	private Move alphaBetaMax(Move m, int alpha, int beta, int depth, int player) { //Search maximising player
 		if (depth == 0) { m.setScore(Evaluation.eval(player)); return m; } //If at leaf node, evaluate board
-		List<Move> moves = CBoard.getAIMoves(player); //Gets a list of current possible moves
+		List<Move> moves = Board.getAIMoves(player); //Gets a list of current possible moves
 		if (moves.size() > 0) { //If valid moves
 			moves = sortMoves(moves); //Sorts the moves from best to worst
 			for (int i = 0; i < moves.size(); i++) { //Interates through all possible moves found
@@ -46,7 +46,7 @@ public class AB {
 	}
 	private Move alphaBetaMin(Move m, int alpha, int beta, int depth, int player) { //Search minimising player
 		if (depth == 0) { m.setScore(-Evaluation.eval(player)); return m; }		
-		List<Move> moves = CBoard.getAIMoves(player);
+		List<Move> moves = Board.getAIMoves(player);
 		if (moves.size() > 0) {
 			moves = sortMoves(moves);
 			for (int i = 0; i < moves.size(); i++) {

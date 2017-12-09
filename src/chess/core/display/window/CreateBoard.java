@@ -4,15 +4,13 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.border.EmptyBorder;
-
-import chess.core.bitboards.CBoard;
+import chess.core.bitboards.Board;
 
 public class CreateBoard extends JFrame {
 
@@ -25,11 +23,11 @@ public class CreateBoard extends JFrame {
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosed(WindowEvent e) {
-				CBoard.setCreating(false); //When GUI closed, set flag
+				Board.setCreating(false); //When GUI closed, set flag
 			}
 		});
 		
-		CBoard.setCreating(true); //If opened, create flag
+		Board.setCreating(true); //If opened, create flag
 		
 		setTitle("Editor"); //Set title
 		setResizable(false); //Diabale resizing
@@ -150,6 +148,6 @@ public class CreateBoard extends JFrame {
 		btnWhite.setSelected(true); //Sets the default selected
 	}
 	
-	private void clearBoards() { CBoard.clear(); } //Clear the chessboard
-	private void resetBoards() { CBoard.reset(); } //Reset the chessboard when called
+	private void clearBoards() { Board.clear(); } //Clear the chessboard
+	private void resetBoards() { Board.reset(); } //Reset the chessboard when called
 }

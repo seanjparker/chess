@@ -3,7 +3,7 @@ package chess.core.bitboards;
 public class BoardConstants {
 	public static String username = "Guest"; //Name of the user, default is `guest`
 	public static int WIDTH_F = 0, HEIGHT_F = 0; //Height and width of the screen
-	public static double squareSize = 0D; //Square size of the chessboard squares
+	public static int squareSize = 0; //Square size of the chessboard squares
 	public static int border = 10; //Boder width of the GUI
 	public static int PVS_DEPTH = 1; //Search depth of the AI
 	

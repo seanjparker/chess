@@ -6,8 +6,8 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
+import chess.core.bitboards.Board;
 import chess.core.bitboards.BoardConstants;
-import chess.core.bitboards.CBoard;
 import chess.core.bitboards.moves.Moves;
 import chess.core.display.window.CreateBoard;
 import chess.core.utils.FEN;
@@ -30,9 +30,8 @@ public class MenuBar {
     newGameMenuItem.addActionListener(e -> {
       int s = JOptionPane.showConfirmDialog(null, "Are you sure you want to start a new game?",
           "Restart", JOptionPane.YES_NO_OPTION);
-      if (s == 0) {
-        CBoard.initChess();
-      }
+      if (s == 0)
+        Board.initChess();
     });
 
     fileMenu.add(newGameMenuItem);
@@ -70,12 +69,12 @@ public class MenuBar {
 
     undoMenuItem = new JMenuItem("Undo");
     undoMenuItem.addActionListener(e -> {
-      m.undoMove(CBoard.getPlayer() ^ 1, null);
+      m.undoMove(Board.getPlayer() ^ 1, null);
     });
 
     redoMenuItem = new JMenuItem("Redo");
     redoMenuItem.addActionListener(e -> {
-      m.redoMove(CBoard.getPlayer() ^ 1);
+      m.redoMove(Board.getPlayer() ^ 1);
     });
 
     forfeitMenuItem = new JMenuItem("Forfeit");

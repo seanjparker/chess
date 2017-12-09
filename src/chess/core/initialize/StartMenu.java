@@ -13,7 +13,7 @@ public class StartMenu extends JFrame {
   private JButton btnOnePl, btnTwoPl;
 
   public StartMenu() {
-    setTitle("Ϲʜеςς | Menu");
+    setTitle("Ϲʜеss | Menu");
     setResizable(false);
     setDefaultCloseOperation(EXIT_ON_CLOSE);
     setLocationRelativeTo(null);

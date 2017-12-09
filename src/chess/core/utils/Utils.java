@@ -1,8 +1,8 @@
 package chess.core.utils;
 
 import javax.swing.JOptionPane;
-
 import chess.core.bitboards.Type;
+import chess.core.bitboards.Type.Piece;
 import chess.core.bitboards.moves.Move;
 
 public class Utils {
@@ -85,7 +85,7 @@ public class Utils {
 		y2 = m.getToY();
 		
 		if (m.getPieceCI() != -1) { //capture
-			if (m.getPieceI() == Type.PAWN) { //pawn is being moved
+			if (m.getPieceI() == Piece.PAWN.id) { //pawn is being moved
 				r = "" + ((char) (97 + x1)) + "x" + ((char) (97 + x2)) + algY[y2]; //pawn capture to a location
 			} else {
 				r = "" + Type.tPieceString[m.getPieceI()] + "x" + ((char) (97 + x2)) + algY[y2]; //other piece capture

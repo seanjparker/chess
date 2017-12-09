@@ -19,12 +19,11 @@ public class GUIHandler extends JFrame {
     //final MouseHandler m = new MouseHandler();
     final int prefWidth = Toolkit.getDefaultToolkit().getScreenSize().width >> 1;
     final int prefHeight = Toolkit.getDefaultToolkit().getScreenSize().height >> 1;
-    final double squareSize = Math.min(prefWidth, prefHeight) / 8;
     
     final JMenuBar mb = new MenuBar().initMenuBar();
     cb = new Chessboard(prefWidth, prefHeight);
     
-    setTitle("Ϲʜеςς");
+    setTitle("Ϲʜеss");
     setLocationRelativeTo(null);
     setDefaultCloseOperation(EXIT_ON_CLOSE);
     setVisible(true);

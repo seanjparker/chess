@@ -1,7 +1,8 @@
 package chess.core.bitboards.eval;
 
-import chess.core.bitboards.CBoard;
+import chess.core.bitboards.Board;
 import chess.core.bitboards.Type;
+import chess.core.bitboards.Type.Piece;
 import chess.core.utils.Utils;
 
 public class Evaluation {
@@ -49,15 +50,15 @@ public class Evaluation {
 
 	private static int material(int player) {
 		int s = 0;
-		for (int i = 0; i < CBoard.pieces.length; i++) { //Gets score baced on number of piece on board
-			s += Type.SCORE[i] * Utils.popCount(CBoard.pieces[i][player]);
+		for (int i = 0; i < Board.pieces.length; i++) { //Gets score baced on number of piece on board
+			s += Type.SCORE[i] * Utils.popCount(Board.getPieceBoard(i, player));
 		}
 		return s;
 	}
 
 	private static int kSaftey(int p) {
-		if (CBoard.kingInCheck(p)) {
-			if (CBoard.kingInCheckmate(p)) {
+		if (Board.kingInCheck(p)) {
+			if (Board.kingInCheckmate(p)) {
 				return -5000000; //If the player is in check, ensure this move that leads to checkmate will not be played					
 			} else {
 				return -500000;
@@ -69,23 +70,23 @@ public class Evaluation {
 	private static int pieceSquareTables(int player, int material) {
 		int s = 0;
 		// Piece Placement
-		for (int i = 0; i < CBoard.pieces.length; i++) {
-			long bb = CBoard.pieces[i][player];
+		for (int i = 0; i < Board.pieces.length; i++) {
+			long bb = Board.getPieceBoard(i, player);
 			while (bb != 0) { //Based on current position of the piece in the board, get the score from piece tables
 				int bitPos = Utils.bitPosition(bb);
 				if (player == 1) { bitPos ^= 56; }
 
-				if (Type.PAWN == i) {
+				if (Piece.PAWN.id == i) {
 					s += PAWN[bitPos]; break;
-				} else if (Type.BISHOP == i) {
+				} else if (Piece.BISHOP.id == i) {
 					s += BISHOP[bitPos]; break;
-				} else if (Type.KNIGHT == i) {
+				} else if (Piece.KNIGHT.id == i) {
 					s += KNIGHT[bitPos]; break;
-				} else if (Type.QUEEN == i) {
+				} else if (Piece.QUEEN.id == i) {
 					s += QUEEN[bitPos]; break;
-				} else if (Type.ROOK == i) {
+				} else if (Piece.ROOK.id == i) {
 					s += ROOK[bitPos]; break;
-				} else if (Type.KING == i) {
+				} else if (Piece.KING.id == i) {
 					if (Math.floor((material / 100)) <= 13) {
 						s += KING_END[bitPos]; // End game
 					} else {
