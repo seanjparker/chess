@@ -6,6 +6,7 @@ import java.awt.GridLayout;
 import java.awt.Toolkit;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
+import chess.core.display.input.MouseHandler;
 import chess.core.initialize.StartMenu;
 
 public class GUIHandler extends JFrame {
@@ -26,7 +27,6 @@ public class GUIHandler extends JFrame {
     setTitle("Ϲʜеss");
     setLocationRelativeTo(null);
     setDefaultCloseOperation(EXIT_ON_CLOSE);
-    setVisible(true);
     setJMenuBar(mb);
     
     Container contents = getContentPane();

@@ -26,15 +26,16 @@ import chess.core.utils.Utils;
 public class Chessboard extends JPanel {
   public static final String FILE_PATH = "./saves";
   private static final String GFX_PATH = "/gfx/chessPieces.png";
+  
   public static int gameOver = -1;
 
   public String possMoves = "";
+
   private Image chessPieceImage;
-  private Moves m = new Moves();
+  private Moves m;
+  private Board b;
 
-  private int squareSize = 0;
-
-  private int draggedIndex = -1;
+  private int squareSize = 0, draggedIndex = -1;
 
   public Chessboard(int width, int height) {
     setPreferredSize(new Dimension(width, height));
@@ -56,7 +57,8 @@ public class Chessboard extends JPanel {
     URL url = Chessboard.class.getResource(GFX_PATH);
     chessPieceImage = new ImageIcon(url).getImage();
 
-    Board.initChess();
+    m = new Moves();
+    b = new Board();
 
     BoardConstants.squareSize = Math.min(width, height) / 8;
     BoardConstants.WIDTH_F = width;
@@ -68,42 +70,42 @@ public class Chessboard extends JPanel {
   private void drawBoard(Graphics2D g) {
     for (int i = 0; i < 64; i += 2) {
       g.setColor(new Color(240, 240, 240)); // White square
-      g.fillRect((int) ((i % 8 + (i / 8) % 2) * squareSize), (int) ((i / 8) * squareSize),
-          (int) squareSize, (int) squareSize);
+      g.fillRect((i % 8 + (i / 8) % 2) * squareSize, (i / 8) * squareSize, squareSize, squareSize);
+      
       g.setColor(new Color(135, 135, 135)); // Black square
-      g.fillRect((int) (((i + 1) % 8 - ((i + 1) / 8) % 2) * squareSize),
-          (int) (((i + 1) / 8) * squareSize), (int) squareSize, (int) squareSize);
+      g.fillRect(((i + 1) % 8 - ((i + 1) / 8) % 2) * squareSize, ((i + 1) / 8) * squareSize,
+          squareSize, squareSize);
     }
   }
 
   private void drawPieces(Graphics2D g) {
-    for (int l = 0; l < Board.pieces.length; l++) {
-      Pair pp = Board.getPiecePair(l);
-      long bb = pp.getPiece();
-      int pid = l < 6 ? l : l - Board.pieces.length / 2;
-      int c = l < 6 ? 0 : 1;
+    drawPiecesOfColor(g, b.wPieces, 0);
+    drawPiecesOfColor(g, b.bPieces, 1);
+  }
+  private void drawPiecesOfColor(Graphics2D g, long[] pieces, int player) {
+    for (int l = 0; l < pieces.length; l++) {
+      long bb = pieces[l];
       while (bb != 0) {
         int i = Utils.bitPosition(bb);
-        bb &= bb - 1; // Gets the next bit location
-        g.drawImage(chessPieceImage, (i % 8) * squareSize,
-            (i / 8) * squareSize, ((i % 8) + 1) * squareSize,
-            ((i / 8) + 1) * squareSize, pid * 64, c * 64, (pid + 1) * 64, (c + 1) * 64,
-            null);
-      } // Above line draws a specific portion of the image to the screen
+        bb &= bb - 1;
+        g.drawImage(chessPieceImage, (i % 8) * squareSize, (i / 8) * squareSize,
+            ((i % 8) + 1) * squareSize, ((i / 8) + 1) * squareSize, l * 64, player * 64,
+            (l + 1) * 64, (player + 1) * 64, null);
+      }
     }
   }
 
   private void drawPossible(Graphics2D g) {
-    if (possMoves.length() > 0) { // Once there are moves to display
+    if (possMoves.length() > 0) {
       for (int j = 0; j < possMoves.length(); j += 2) {
-        String tMove = possMoves.substring(j, j + 2); // Parse the string
-        // Gets the x and y location
-        int x = ((int) (Character.getNumericValue(tMove.charAt(0)) * squareSize));
-        int y = ((int) (Character.getNumericValue(tMove.charAt(1)) * squareSize));
-        int r = (int) squareSize / 2;
+        String tMove = possMoves.substring(j, j + 2);
+
+        int x = Character.getNumericValue(tMove.charAt(0)) * squareSize;
+        int y = Character.getNumericValue(tMove.charAt(1)) * squareSize;
+        int r = squareSize / 2;
 
         g.setColor(new Color(100, 180, 0));
-        g.fillOval(x + (r / 2), y + (r / 2), r, r); // Draws at specific location, an oval
+        g.fillOval(x + (r / 2), y + (r / 2), r, r);
       }
     }
   }
@@ -111,7 +113,7 @@ public class Chessboard extends JPanel {
   private void drawCaptured(Graphics2D g) {
     if (!MoveHistory.isEmpty()) { // Have moves been played
       int tCounterW = -1, tCounterB = -1;
-      int x = (int) (8 * squareSize); // Gets the x offset
+      int x = 8 * squareSize; // Gets the x offset
 
       for (int i = 0; i < MoveHistory.getSize(); i++) { // Goes through all past moves
         if (MoveHistory.getItemAt(i).getType() == 0) { // Did the move in include a capture?
@@ -141,16 +143,13 @@ public class Chessboard extends JPanel {
     if (!MoveHistory.isEmpty()) { // Have moves been played?
       setText(g, Color.BLUE); // Sets the text colour
       FontMetrics c = g.getFontMetrics();
-      int x = (int) (8 * squareSize);
+      int x = 8 * squareSize;
       int y = 128;
 
       int j = 0, end = (int) Math.floor((2 * (getHeight() - y)) / c.getHeight());
-      // Should text scroll?
-      if ((((MoveHistory.getSize() / 2) * c.getHeight()) + y) >= getHeight()) {
-        j += ((MoveHistory.getSize() - end));
-        if ((j % 2) != 0) {
-          j++;
-        } // Is is a white or black move
+      int mhs = MoveHistory.getSize();
+      if (((mhs * c.getHeight() / 2) + y) >= getHeight()) {
+        j += (mhs - end) % 2 != 0 ? (mhs - end) + 1 : mhs - end;
       }
 
       for (int i = j; i < MoveHistory.getSize(); i++) { // AT which move should we start drawing
@@ -175,7 +174,7 @@ public class Chessboard extends JPanel {
       int mX = MouseHandler.dMX; // Gets the current x on the screen
       int mY = MouseHandler.dMY; // Gets the current y on the screen
       if (draggedIndex != -1) { // Is a piece clicked
-        int p = Board.getPlayer(); // Gets the current player
+        int p = b.getPlayer(); // Gets the current player
         g.drawImage(chessPieceImage, mX - (int) (squareSize / 2), mY - (int) (squareSize / 2),
             (int) (mX + squareSize), (int) (mY + squareSize), draggedIndex * 64, p * 64,
             (draggedIndex + 1) * 64, (p + 1) * 64, null);
@@ -193,7 +192,7 @@ public class Chessboard extends JPanel {
         || (MouseHandler.button == MouseEvent.BUTTON3)) {
       int mX = MouseHandler.mX; // Gets the current x and y where the mouse was clicked
       int mY = MouseHandler.mY;
-      possMoves = Board.getPossibleMoves(mX, mY, (int) squareSize);
+      possMoves = b.getPossibleMoves(mX, mY, (int) squareSize);
     }
   }
 
@@ -203,32 +202,34 @@ public class Chessboard extends JPanel {
     int nMX = MouseHandler.nMX; // Gets the end location of the click
     int nMY = MouseHandler.nMY; // These are combined to form a from->to move
 
-    if (getGM() == Mode.ONE_PLAYER && !Board.isCreating()) { // One Player
+    if (getGM() == Mode.ONE_PLAYER && !b.isCreating()) { // One Player
       if (MouseHandler.button == MouseEvent.BUTTON1) {
-        int p = Board.getPlayer();
+        int p = b.getPlayer();
         String move = Utils.calculateDragMove(mX, mY, nMX, nMY, squareSize);
-        int moveType = Board.whichMoveType(move, p);
+        int moveType = b.whichMoveType(move, p);
         if (m.applyMove(null, p, moveType, move, true)) {
           if (!checkingForChecksSinglePlayer(p ^ 1)) {
             performAIMove();
           }
         }
       }
-    } else if ((getGM() == Mode.TWO_PLAYER) && !Board.isCreating()) { // Two Player or timed game
+    } else if ((getGM() == Mode.TWO_PLAYER) && !b.isCreating()) { // Two Player or timed game
       if (MouseHandler.button == MouseEvent.BUTTON1) {
-        int p = Board.getPlayer();
+        int p = b.getPlayer();
         String move = Utils.calculateDragMove(mX, mY, nMX, nMY, squareSize);
         standardMove(move, p); // Just a normal move if the king is not in check
       }
     }
-    if (Board.isCreating()) { // Editing the board
-      int shift = Utils.getShiftFrom("" + (int) (nMY / squareSize) + "" + (int) (nMX / squareSize));
+    if (b.isCreating()) { // Editing the board
+      int shift = Utils.getShiftFrom("" + nMY / squareSize + nMX / squareSize);
       int pieceIndex = CreateBoard.pieceSelected;
       int playerSelected = CreateBoard.whichSelected + 1;
-      if (((Board.getPieceBoard(pieceIndex, playerSelected) >> shift) & 1) == 0) {
-        Board.pieces[pieceIndex * playerSelected] ^= (1L << shift);
+      if (((b.getPieceBoard(pieceIndex, playerSelected) >> shift) & 1) == 0) {
+        if (playerSelected == 0) b.wPieces[pieceIndex] ^= (1L << shift);
+        else b.bPieces[pieceIndex] ^= (1L << shift);
       } else {
-        Board.pieces[pieceIndex * playerSelected] &= ~(1L << shift);
+        if (playerSelected == 0) b.wPieces[pieceIndex] &= ~(1L << shift);
+        else b.bPieces[pieceIndex] &= ~(1L << shift);
       }
     }
 
@@ -243,17 +244,17 @@ public class Chessboard extends JPanel {
       nextMove.flipMove();
       MoveHistory.remove(prevMoves, MoveHistory.getSize()); // Clear the MoveHistory
       m.applyMove(nextMove, nextMove.getPlayer(), nextMove.getType(), nextMove.getMoveReg(), true);
-      Board.setPlayer(0); // Now white's move
+      b.setPlayer(0); // Now white's move
     }
-    int p = Board.getPlayer();
+    int p = b.getPlayer();
     checkingForChecksSinglePlayer(p); // Did the AI put the player in check/checkmate
   }
 
   public void draggedEvent() {
     if ((MouseHandler.draggedMouse) && (draggedIndex == -1)) {
-      int rank = (int) (MouseHandler.mX / squareSize);
-      int file = (int) (MouseHandler.mY / squareSize);
-      int pieceI = Board.getBBIndex(rank, file, Board.getPlayer());
+      int rank = MouseHandler.mX / squareSize;
+      int file = MouseHandler.mY / squareSize;
+      int pieceI = b.getBBIndex(rank, file, b.getPlayer());
       if (pieceI != -1) {
         draggedIndex = pieceI;
       } // Sets the current piece clicked
@@ -261,22 +262,16 @@ public class Chessboard extends JPanel {
   }
 
   private boolean checkingForChecksSinglePlayer(int p) {
-    if (Board.kingInCheck(p)) { // Is white in check
-      if (Board.kingInCheckmate(p)) { // Is white in checkmate
-        checkmateDialog(p);
-        return true;
-      }
-    }
-    return false;
+    return b.kingInCheck(p) && b.kingInCheckmate(p);
   }
 
   private void checkingForChecksTwoPlayer(int p) {
-    if (Board.kingInCheck(p)) {
+    if (b.kingInCheck(p)) {
       m.undoMove(p, MoveHistory.getNext());
     } else {
-      p = Board.getPlayer(); // Get the updated player
-      if (Board.kingInCheck(p)) { // Did the last move put the other player in check
-        if (Board.kingInCheckmate(p)) { // If the king is in check, is the king in checkmate
+      p = b.getPlayer(); // Get the updated player
+      if (b.kingInCheck(p)) { // Did the last move put the other player in check
+        if (b.kingInCheckmate(p)) { // If the king is in check, is the king in checkmate
           checkmateDialog(p); // If true, game over
         } else {
           checkDialog(p); // Is king in check, inform user
@@ -286,11 +281,9 @@ public class Chessboard extends JPanel {
   }
 
   private void standardMove(String move, int p) {
-    int moveType = Board.whichMoveType(move, p); // Gets the move type of the current move
-    if (moveType >= 0) { // Do a preliminary test to ensure move was valid
-      if (m.applyMove(null, p, moveType, move, true)) {
-        checkingForChecksTwoPlayer(p);
-      }
+    int moveType = b.whichMoveType(move, p); // Gets the move type of the current move
+    if (moveType >= 0 && m.applyMove(null, p, moveType, move, true)) {
+      checkingForChecksTwoPlayer(p);
     }
   }
 
@@ -302,7 +295,7 @@ public class Chessboard extends JPanel {
       v = Utils.showDialog("Checkmate!!", "White has won! \nGame Over");
     }
     if (v == 0) { // Restart
-      Board.reset();
+      b.reset();
     } else { // Dont Restart
       MoveHistory.peekNext().setCheckmate(true);
       MoveHistory.peekNext().setPlayerWon(p);

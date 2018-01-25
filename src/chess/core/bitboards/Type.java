@@ -23,9 +23,13 @@ public class Type {
 	  ROOK(4),
 	  KING(5);
 	  
-	  public final int id;
+	  private final int id;
 	  Piece(final int id) {
 	    this.id = id;
+	  }
+	  
+	  public int getID() {
+	    return this.id;
 	  }
 	}
 	public static final int PAWN = 0; //These indexes are used to identify the pieces throughout the program

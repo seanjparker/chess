@@ -122,13 +122,13 @@ public class Moves {
   }
 
   private boolean enPassant(Move m, boolean add) {
-    if (c.validEnPassant(m)) { // Checks if en passant move is valid
+    if (c.validEnPassant(m)) {
       long toBB = 0L, fromBB = 0L, fromToBB = 0L, fBoard = 0L;
       fromBB = 1L << Utils.getShiftFrom(m.getMoveReg());
       toBB = 1L << Utils.getShiftTo(m.getMoveReg());
-      fromToBB = fromBB ^ toBB; // Gets from and to bitboard by XOR
+      fromToBB = fromBB ^ toBB;
 
-      Board.pieces[Piece.PAWN * (m.getPlayer() + 1)] ^= fromToBB; // Updates the pawns bitboard
+      Board.pieces[Piece.PAWN * (m.getPlayer() + 1)] ^= fromToBB;
 
       if (m.getPlayer() == 0) {
         fBoard = northOne(toBB);
