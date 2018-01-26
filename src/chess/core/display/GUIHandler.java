@@ -21,13 +21,13 @@ public class GUIHandler extends JFrame {
     final int prefWidth = Toolkit.getDefaultToolkit().getScreenSize().width >> 1;
     final int prefHeight = Toolkit.getDefaultToolkit().getScreenSize().height >> 1;
     
-    final JMenuBar mb = new MenuBar().initMenuBar();
+    //final JMenuBar mb = new MenuBar().initMenuBar();
     cb = new Chessboard(prefWidth, prefHeight);
     
     setTitle("Ϲʜеss");
     setLocationRelativeTo(null);
     setDefaultCloseOperation(EXIT_ON_CLOSE);
-    setJMenuBar(mb);
+    //setJMenuBar(mb);
     
     Container contents = getContentPane();
     contents.setLayout(new GridLayout(1, 0));

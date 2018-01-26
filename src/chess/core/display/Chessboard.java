@@ -155,7 +155,7 @@ public class Chessboard extends JPanel {
       for (int i = j; i < MoveHistory.getSize(); i++) { // AT which move should we start drawing
         String alg = Utils.convertToAlgebraic(MoveHistory.getItemAt(i)); // Gets the text to draw
         int offX = c.stringWidth(Integer.toString((i / 2) + 1) + ". ");
-        int offY = ((i - j) / 2) * c.getHeight(); // Gets the height offset
+        int offY = (i - j) * c.getHeight() / 2; // Gets the height offset
 
         if (i % 2 == 0) {
           g.drawString(Integer.toString((i / 2) + 1) + ".", x, y + offY);
@@ -175,8 +175,8 @@ public class Chessboard extends JPanel {
       int mY = MouseHandler.dMY; // Gets the current y on the screen
       if (draggedIndex != -1) { // Is a piece clicked
         int p = b.getPlayer(); // Gets the current player
-        g.drawImage(chessPieceImage, mX - (int) (squareSize / 2), mY - (int) (squareSize / 2),
-            (int) (mX + squareSize), (int) (mY + squareSize), draggedIndex * 64, p * 64,
+        g.drawImage(chessPieceImage, mX - squareSize / 2, mY - squareSize / 2,
+            mX + squareSize, mY + squareSize, draggedIndex * 64, p * 64,
             (draggedIndex + 1) * 64, (p + 1) * 64, null);
       }
     }
@@ -192,7 +192,7 @@ public class Chessboard extends JPanel {
         || (MouseHandler.button == MouseEvent.BUTTON3)) {
       int mX = MouseHandler.mX; // Gets the current x and y where the mouse was clicked
       int mY = MouseHandler.mY;
-      possMoves = b.getPossibleMoves(mX, mY, (int) squareSize);
+      possMoves = b.getPossibleMoves(mX, mY, squareSize);
     }
   }
 

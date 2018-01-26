@@ -10,6 +10,8 @@ import chess.core.initialize.BitboardInit;
 import chess.core.utils.Utils;
 
 public class Board {
+  private final short PIECES = 6;
+  
   public long[] wPieces;
   public long[] bPieces;
 
@@ -29,6 +31,10 @@ public class Board {
   private long empty = 0L; // The empty pieces = ~aOccupied
   
   public Board() {
+    initChess();
+  }
+  
+  private void initChess() {
     BitboardInit.initBitboards(); // Set bitboards
     setOccupied(); // Sets the occupied pieces
 
@@ -96,7 +102,7 @@ public class Board {
     }
 
     // Move - Capture
-    for (int i = 0; i < pieces.length / 2; i++) {
+    for (int i = 0; i < PIECES; i++) {
       if (isPositionOcc(getPieceBoard(i, colour), from)) {
         pieceIndex1 = i; // Gets the piece index at current location
       }
@@ -251,7 +257,7 @@ public class Board {
   }
 
   private int getBB(int squareIndex, int colour) {
-    for (int i = 0; i < pieces.length / 2; i++) {
+    for (int i = 0; i < PIECES; i++) {
       if (isPositionOcc(getPieceBoard(i, colour), squareIndex)) {
         return i;
       }
@@ -264,7 +270,8 @@ public class Board {
   }
 
   public void clear() {
-    pieces = new Pair[6 * 2]; // Clear the whole bitboard
+    wPieces = new long[PIECES];
+    bPieces = new long[PIECES];
     MoveHistory.clear(); // Removes all past moves that have been played
   }
 
