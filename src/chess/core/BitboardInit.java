@@ -3,7 +3,6 @@ package chess.core;
 import chess.core.bitboards.Board;
 import chess.core.bitboards.Pair;
 import chess.core.bitboards.PlayerColour;
-import chess.core.utils.Utils;
 
 public class BitboardInit {
 

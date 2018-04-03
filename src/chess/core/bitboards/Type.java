@@ -16,10 +16,10 @@ public class Type {
   private static Queen q = new Queen();
   private static King k = new King();
 
-  public static final String[] tPieceString = {"", "B", "N", "Q", "R", "K"}; //Used when compiling fen or algebraic move notation
-  public static final String[] tPieceChar = {"P", "B", "N", "Q", "R", "K"};
+  public static final String[] tPieceString = {"", "N", "B", "Q", "R", "K"}; //Used when compiling fen or algebraic move notation
+  public static final String[] tPieceChar = {"P", "N", "B", "Q", "R", "K"};
 
-  public static final int SCORE[] = {100, 330, 320, 900, 500, 20000}; //Score for each piece
+  public static final int SCORE[] = {100, 320, 330, 900, 500, 20000}; //Score for each piece
 
   public static long getPieceCapAndMove(int player, long empty, long wOccupied, long bOccupied, long pieceBB, PieceType piece) {
     if (player == 0) {

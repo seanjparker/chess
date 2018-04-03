@@ -129,7 +129,7 @@ public class FEN {
 
     for (int i = 0; i < fen.length(); i++) {
       char currentCharacter = fen.charAt(i);
-      if (boardIndex == (int) Math.pow(board.length, 2)) { break; } //If reached the end of the chess board, break the loop
+      if (boardIndex == board.length * board.length) { break; } //If reached the end of the chess board, break the loop
 
       if (currentCharacter != '/') { //When not at the end of a row
         if (Character.isDigit(currentCharacter)) {

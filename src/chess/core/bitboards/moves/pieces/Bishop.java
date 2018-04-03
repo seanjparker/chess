@@ -13,8 +13,7 @@ public class Bishop extends Piece {
         int aDiagPos = ((sliderBit / 8) + 7) - (sliderBit % 8); // Get (y + 7) - x
         long occ = ~empty, bb1 = (1L << sliderBit) * 2, bb2 = Long.reverse(1L << sliderBit) * 2;
         long diagMask = BoardConstants.DIAGONAL_MASKS[diagPos]; // Gets a mask for the diagonal
-        long aDiagMask = BoardConstants.ANTIDIAGONAL_MASKS[aDiagPos]; // Get a mask for
-                                                                      // anti-diagonal
+        long aDiagMask = BoardConstants.ANTIDIAGONAL_MASKS[aDiagPos]; // Get a mask for anti-diagonal
         long diag = ((occ & diagMask) - bb1) ^ Long.reverse(Long.reverse(occ & diagMask) - bb2); // diagonal
         long aDiag = ((occ & aDiagMask) - bb1) ^ Long.reverse(Long.reverse(occ & aDiagMask) - bb2); // anti-diagonal
         total |= ((diag & diagMask) | (aDiag & aDiagMask));

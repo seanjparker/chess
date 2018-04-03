@@ -42,7 +42,6 @@ public class GUIHandler extends JFrame {
   }
 
   private void update() {
-    //System.out.println("" + MouseHandler.mX + " -- " + MouseHandler.mY);
     if (!this.isVisible() && BoardConstants.gamemode != null)
       this.setVisible(true);
     if (Chessboard.gameOver == -1) {

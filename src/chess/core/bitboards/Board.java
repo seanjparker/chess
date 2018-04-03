@@ -244,6 +244,7 @@ public class Board {
   } // Gets blacks populated bitboard
 
   public static void setOccupied() { // Sets occupied bitboard of all pieces
+    wOccupied = bOccupied = 0L;
     for (int i = 0; i < PIECES; i++)
       wOccupied |= getPieceBoard(i, 0);
     wOccupied |= getPieceBoard(PieceType.KING, 1);
@@ -252,7 +253,7 @@ public class Board {
       bOccupied |= getPieceBoard(i, 1);
     bOccupied |= getPieceBoard(PieceType.KING, 0);
 
-    aOccupied = (wOccupied | bOccupied);
+    aOccupied = wOccupied | bOccupied;
     setEmpty(~aOccupied); // Sets the empty bitboard
   }
 
@@ -316,33 +317,37 @@ public class Board {
     return human;
   }
 
-  public void setHumanIsWhite(int humanWhite) {
-    human = humanWhite;
+  public void setHumanIsWhite(int human) {
+    Board.human = human;
   }
-
+  private static void print(long ll) {
+    System.out.println(Long.toBinaryString(ll));
+  }
   public static String getPossibleMoves(int mX, int mY, int sSize) {
     setOccupied();
 
     String possMoves = "";
     int rank = mX / sSize;
     int file = mY / sSize;
-    System.out.println("rank = " + rank + ", file = " + file);
+ 
     PieceType piece = getBBIndex(rank, file, whichPlayer);
-    if (piece != null) System.out.println(piece.toString());
-    long bb = getBB(rank, file, whichPlayer) & (1L << Utils.convert2D1D(rank, file));
 
+    long bb = getBB(rank, file, whichPlayer) & (1L << Utils.convert2D1D(rank, file));
+    print(bb);
     // Set the bb with the possible moves for the selected PieceType
     if (bb != 0L) {
       bb = Type.getPieceCapAndMove(whichPlayer, empty, wOccupied, bOccupied, bb, piece);
+      print(bb);
       bb &= ~getPieceBoard(PieceType.KING, whichPlayer); // Remove the king from the selected pieces
-
+      print(bb);
       while (bb != 0) { // Construct a list of moves from the resultant bitboard
         int bitPos = Utils.bitPosition(bb);
         possMoves += "" + (bitPos % 8) + (bitPos / 8);
         bb &= bb - 1; // Get the next bit
       }
-      //System.out.println(possMoves);
+
     }
+    System.out.println(piece + "  " + possMoves);
     return possMoves; // Retun string of all possible moves
   }
 
@@ -377,7 +382,7 @@ public class Board {
           resultMoves.add(new Move(possibleMove, moveType, player, piece, pieceCap));
           bb &= bb - 1; // Get the next possible position of the current PieceType in the bitboard
         }
-        pieceBB &= pieceBB - 1; // Get the next PieceType from the biboard
+        pieceBB &= pieceBB - 1; // Get the next piece  from the biboard
       }
     }
     return resultMoves; // Return the list of move objects generated
@@ -386,7 +391,7 @@ public class Board {
   public static boolean kingInCheck(int player) {
     long k = getPieceBoard(PieceType.KING, player);
     long atk = Type.getUnsafe(player, empty); // Gets all unsafe locations
-    return (atk & k) != 0; // return true if king is being attacked by a PieceType
+     return (atk & k) != 0; // return true if king is being attacked by a PieceType
   }
 
   public static boolean kingInCheckmate(int player) {
@@ -396,9 +401,8 @@ public class Board {
       for (Move m : oneply) {
         if (checkmate) {
           Moves.applyMove(m, player, m.getType(), m.getMoveReg(), false);
-          if (!kingInCheck(player)) {
+          if (!kingInCheck(player))
             checkmate = false;
-          }
           Moves.undoMove(player, m);
         }
       }
