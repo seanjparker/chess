@@ -3,19 +3,19 @@ package chess.core.bitboards.moves;
 import javax.swing.JOptionPane;
 import chess.core.bitboards.Board;
 import chess.core.bitboards.BoardConstants;
-import chess.core.bitboards.Type.Piece;
+import chess.core.bitboards.MoveType;
+import chess.core.bitboards.moves.pieces.PieceType;
 import chess.core.utils.Utils;
 
 public class Moves {
-  private Board c = new Board();
 
-  public boolean applyMove(Move m, int p, int moveType, String move, boolean add) {
+  public static boolean applyMove(Move m, int p, MoveType moveType, String move, boolean add) {
     Move playerMove = null;
 
     if (m == null) {
-      int captureIndex = Board.getBBCapIndex(move, p); // Gets the piece being captured
-      int pieceIndex = Board.getBBIndex(move, p); // Gets the piece being moved
-      if (pieceIndex != -1) { // Only create a move if a valid move
+      PieceType captureIndex = Board.getBBCapIndex(move, p); // Gets the piece being captured
+      PieceType pieceIndex = Board.getBBIndex(move, p); // Gets the piece being moved
+      if (pieceIndex != null) { // Only create a move if a valid move
         playerMove = new Move(move, moveType, p, pieceIndex, captureIndex);
       }
     } else { // If an AI move, dont create a move object
@@ -23,27 +23,25 @@ public class Moves {
     }
 
     switch (moveType) {
-      case 0: // capture
+      case CAPTURE: // capture
         return capture(playerMove, add);
-      case 1: // move
+      case MOVE: // move
         return move(playerMove, add);
-      case 2: // castle
+      case CASTLE: // castle
         return castle(playerMove, add);
-      case 3: // en passant
+      case ENPASSANT: // en passant
         return enPassant(playerMove, add);
-      case 4: // promotion
+      case PROMOTION: // promotion
         return promotion(playerMove, add);
     }
     return false;
   }
 
-  private boolean move(Move m, boolean add) {
-    if (c.validMove(m)) { // Check to see if move is valid
-      applyPieces(m.getPieceI(), -1, m.getPlayer(), getFrom(m.getMoveReg()), getTo(m.getMoveReg()),
-          false);
-      if (add) {
+  private static boolean move(Move m, boolean add) {
+    if (Board.validMove(m)) { // Check to see if move is valid
+      Moves.applyPieces(m.getPiece(), null, m.getPlayer(), getFrom(m.getMoveReg()), getTo(m.getMoveReg()), false);
+      if (add)
         MoveHistory.addItem(m);
-      } // Add the move to move history
     } else {
       System.err.println("Invalid Move");
       return false;
@@ -51,13 +49,11 @@ public class Moves {
     return true;
   }
 
-  private boolean capture(Move m, boolean add) {
-    if (c.validCapture(m)) { // Check to see if capture is valid
-      applyPieces(m.getPieceI(), m.getPieceCI(), m.getPlayer(), getFrom(m.getMoveReg()),
-          getTo(m.getMoveReg()), true);
-      if (add) {
+  private static boolean capture(Move m, boolean add) {
+    if (Board.validCapture(m)) { // Check to see if capture is valid
+      applyPieces(m.getPiece(), m.getPieceC(), m.getPlayer(), getFrom(m.getMoveReg()), getTo(m.getMoveReg()), true);
+      if (add)
         MoveHistory.addItem(m);
-      } // Add the move to move history
     } else {
       System.err.println("Invalid Capture");
       return false;
@@ -65,7 +61,7 @@ public class Moves {
     return true;
   }
 
-  private boolean castle(Move m, boolean add) {
+  private static boolean castle(Move m, boolean add) {
     // longShort --> long (Queen Side Castle) = 0, short (King Side Castle) = 1 [WHITE]
     // longShort --> long (Queen Side Castle) = 0, short (King Side Castle) = 1 [BLACK]
 
@@ -92,7 +88,7 @@ public class Moves {
     }
 
     if (longShort >= 0) {
-      if (c.validCastle(move, player, longShort)) { // Check to see if castle if valid
+      if (Board.validCastle(move, player, longShort)) { // Check to see if castle if valid
         long fromBBR, toBBR, fromToBBR, fromBBK, toBBK, fromToBBK;
         int k = longShort + (player * 2); // Get index based on colour
 
@@ -104,13 +100,12 @@ public class Moves {
         toBBK = (1L << BoardConstants.FINAL_KING_POSITIONS[k]);
         fromToBBK = fromBBK ^ toBBK; // Gets the from and to bitboard for the king
 
-        Board.pieces[Piece.ROOK * (player + 1)] ^= fromToBBR; // Applies the bitboard to rook by XOR
-        Board.pieces[Piece.KING * (player + 1)] ^= fromToBBK; // Applies the bitboard to king by XOR
+        Board.pieces[PieceType.ROOK.ordinal() * (player + 1)].xorWith(fromToBBR); // Applies the bitboard to rook by XOR
+        Board.pieces[PieceType.KING.ordinal() * (player + 1)].xorWith(fromToBBK); // Applies the bitboard to king by XOR
 
         setGeneral((fromToBBK | fromToBBR), player ^ 1); // Sets occupied and empty bitboards
-        if (add) {
-          MoveHistory.addItem(new Move(move, 2, player, Piece.KING.id, -1, longShort));
-        }
+        if (add)
+          MoveHistory.addItem(new Move(move, MoveType.CASTLE, player, PieceType.KING, null, longShort));
 
         setCastleStatus(longShort, player, true);
       } else {
@@ -121,61 +116,42 @@ public class Moves {
     return true;
   }
 
-  private boolean enPassant(Move m, boolean add) {
-    if (c.validEnPassant(m)) {
-      long toBB = 0L, fromBB = 0L, fromToBB = 0L, fBoard = 0L;
-      fromBB = 1L << Utils.getShiftFrom(m.getMoveReg());
-      toBB = 1L << Utils.getShiftTo(m.getMoveReg());
-      fromToBB = fromBB ^ toBB;
+  private static boolean enPassant(Move m, boolean add) {
+    long toBB = 0L, fromBB = 0L, fromToBB = 0L, fBoard = 0L;
+    fromBB = 1L << Utils.getShiftFrom(m.getMoveReg());
+    toBB = 1L << Utils.getShiftTo(m.getMoveReg());
+    fromToBB = fromBB ^ toBB;
 
-      Board.pieces[Piece.PAWN * (m.getPlayer() + 1)] ^= fromToBB;
+    Board.pieces[PieceType.PAWN.ordinal() * (m.getPlayer() + 1)].xorWith(fromToBB);
 
-      if (m.getPlayer() == 0) {
-        fBoard = northOne(toBB);
-        Board.pieces[Piece.PAWN * ((m.getPlayer() ^ 1) + 1)] ^= fBoard;
-      } else {
-        fBoard = southOne(toBB);
-        Board.pieces[Piece.PAWN * ((m.getPlayer() ^ 1) + 1)] ^= fBoard;
-      }
+    fBoard = m.getPlayer() == 0 ? northOne(toBB) : southOne(toBB);
+    Board.pieces[PieceType.PAWN.ordinal() * ((m.getPlayer() ^ 1) + 1)].xorWith(fBoard);
 
-      setGeneral((fromToBB | fBoard), m.getPlayer() ^ 1); // Sets the occupied and empty bitboards
-      if (add) {
-        MoveHistory.addItem(m);
-      }
-    } else {
-      System.err.println("Invalid En Passant"); // Tells the user that the move was invalid
-      return false;
-    }
+    setGeneral((fromToBB | fBoard), m.getPlayer() ^ 1); // Sets the occupied and empty bitboards
+    if (add)
+      MoveHistory.addItem(m);
     return true;
   }
 
-  private boolean promotion(Move m, boolean add) {
-    if (c.validPromotion(m)) {
-      int r = -1;
-      if (m.getPieceI() == Piece.PAWN.id) {
-        r = promotionDialog(); // If two player, give option to choose promotion
-      } else {
-        if (m != null) {
-          r = m.getPieceI();
-        } // If AI, force queen promotion
-      }
+  private static boolean promotion(Move m, boolean add) {
+    if (Board.validPromotion(m)) {
+      PieceType r = m.getPiece() == PieceType.PAWN ? promotionDialog() : m.getPiece();
 
       long toBB = 0L, fromBB = 0L, fromToBB = 0L;
       fromBB = (1L << Utils.getShiftFrom(m.getMoveReg()));
       toBB = (1L << Utils.getShiftTo(m.getMoveReg()));
       fromToBB = fromBB ^ toBB;
 
-      Board.pieces[r * (m.getPlayer() + 1)] ^= toBB; // Updates the promotion bitboard
-      Board.pieces[Piece.PAWN * (m.getPlayer() + 1)] ^= fromBB;
+      Board.pieces[r.ordinal() * (m.getPlayer() + 1)].xorWith(toBB); // Updates the promotion bitboard
+      Board.pieces[PieceType.PAWN.ordinal() * (m.getPlayer() + 1)].xorWith(fromBB);
 
-      if (m.getPieceCI() != -1) {
-        Board.pieces[m.getPieceCI() * ((m.getPlayer() ^ 1) + 1)] ^= toBB;
-      } // Capture and promotion -- diagonal move + promotion
+      if (m.getPieceC() != null) // Capture and promotion -- diagonal move + promotion
+        Board.pieces[m.getPieceC().ordinal() * ((m.getPlayer() ^ 1) + 1)].xorWith(toBB);
 
       setGeneral(fromToBB, m.getPlayer() ^ 1);
-      if (add) {
-        MoveHistory.addItem(new Move(m.getMoveReg(), 4, m.getPlayer(), r, m.getPieceCI()));
-      }
+      if (add)
+        MoveHistory.addItem(new Move(m.getMoveReg(), MoveType.PROMOTION, m.getPlayer(), r, m.getPieceC()));
+
     } else {
       System.err.println("Invalid Promotion");
       return false;
@@ -183,29 +159,29 @@ public class Moves {
     return true;
   }
 
-  private int promotionDialog() {
+  private static PieceType promotionDialog() {
     Object[] poss = {"Queen", "Knight", "Rook", "Bishop"}; // Object for choices in drop-down
     String s = (String) JOptionPane.showInputDialog(null, "Choose the piece to promote to:",
         "Promotion Menu", JOptionPane.INFORMATION_MESSAGE, null, poss, "Queen");
     if ((s != null) && (s.length() > 0)) { // Shows the pieces in a drop down
       switch (s) {
         case "Queen":
-          return Piece.QUEEN.id;
+          return PieceType.QUEEN;
         case "Knight":
-          return Piece.KNIGHT.id;
+          return PieceType.KNIGHT;
         case "Rook":
-          return Piece.ROOK.id;
+          return PieceType.ROOK;
         case "Bishop":
-          return Piece.BISHOP.id;
+          return PieceType.BISHOP;
       }
     }
-    return Piece.QUEEN.id; // Default is queen
+    return PieceType.QUEEN; // Default is queen
   }
 
-  public void redoMove(int player) {
+  public static void redoMove(int player) {
     if (MoveHistory.getSizeOld() > 0) {
       Move p = MoveHistory.getNextOld().flipMove();
-      if (p.getType() == 2) { // Castle
+      if (p.getType() == MoveType.CASTLE) { // Castle
         // This is the same as making a move, except the player is flipped
         int k = p.getLS() + ((player ^ 1) * 2);
         long fromToBBK = (1L << BoardConstants.INITIAL_KING_POSITIONS[k])
@@ -213,39 +189,39 @@ public class Moves {
         long fromToBBR = (1L << BoardConstants.INITIAL_ROOK_POSITIONS[k]
             ^ (1L << BoardConstants.FINAL_ROOK_POSITIONS[k]));
 
-        Board.pieces[Piece.ROOK * ((player ^ 1) + 1)] ^= fromToBBR;
-        Board.pieces[Piece.KING * ((player ^ 1) + 1)] ^= fromToBBK;
+        Board.pieces[PieceType.ROOK.ordinal() * ((player ^ 1) + 1)].xorWith(fromToBBR);
+        Board.pieces[PieceType.KING.ordinal() * ((player ^ 1) + 1)].xorWith(fromToBBK);
 
         setGeneral((fromToBBR | fromToBBK), player);
         setCastleStatus(p.getLS(), player, true); // Sets the castle status to prevent castle
-      } else if (p.getType() == 4) { // Promotion
+      } else if (p.getType() == MoveType.PROMOTION) { // Promotion
         long toBB = 0L, fromBB = 0L, fromToBB = 0L;
         fromBB = (1L << p.getShiftFrom());
         toBB = (1L << p.getShiftTo());
         fromToBB = fromBB ^ toBB;
 
-        Board.pieces[p.getPieceI() * ((player ^ 1) + 1)] ^= toBB;
-        Board.pieces[Piece.PAWN * ((player ^ 1) + 1)] ^= fromBB;
+        Board.pieces[p.getPiece().ordinal() * ((player ^ 1) + 1)].xorWith(toBB);
+        Board.pieces[PieceType.PAWN.ordinal() * ((player ^ 1) + 1)].xorWith(fromBB);
 
-        if (p.getPieceCI() != -1) {
-          Board.pieces[p.getPieceCI() * (player + 1)] ^= toBB;
-        } // If contained a capture, place back captured piece
+        if (p.getPieceC() != null) //If contained a capture, place back captured piece
+          Board.pieces[p.getPieceC().ordinal() * (player + 1)].xorWith(toBB);
+
         setGeneral(fromToBB, player);
-      } else if (p.getType() == 3) { // En Passant
+      } else if (p.getType() == MoveType.ENPASSANT) { //En Passant
         long toBB = 0L, fromBB = 0L, fromToBB = 0L;
         fromBB = 1L << p.getShiftFrom();
         toBB = 1L << p.getShiftTo();
         fromToBB = fromBB ^ toBB;
 
         // Place captured piece back in correct location
-        Board.pieces[Piece.PAWN * (p.getPlayer() + 1)] ^= fromToBB;
+        Board.pieces[PieceType.PAWN.ordinal() * (p.getPlayer() + 1)].xorWith(fromToBB);
         if (p.getPlayer() == 0) {
           long toRBB = northOne(fromBB);
-          Board.pieces[Piece.PAWN * ((p.getPlayer() ^ 1) + 1)] ^= toRBB;
+          Board.pieces[PieceType.PAWN.ordinal() * ((p.getPlayer() ^ 1) + 1)].xorWith(toRBB);
           setGeneral(toRBB | fromToBB, player); // Sets the occupied and empty bitboards
         } else {
           long toRBB = southOne(fromBB);
-          Board.pieces[Piece.PAWN * ((p.getPlayer() ^ 1) + 1)] ^= toRBB;
+          Board.pieces[PieceType.PAWN.ordinal() * ((p.getPlayer() ^ 1) + 1)].xorWith(toRBB);
           setGeneral(toRBB | fromToBB, player);
         }
       } else { // Move or capture
@@ -253,10 +229,10 @@ public class Moves {
         long toBB = (1L << p.getShiftTo());
         long fromToBB = fromBB ^ toBB;
         // Standard move, place the piece back as normal move
-        Board.pieces[p.getPieceI() * ((player ^ 1) + 1)] ^= fromToBB;
+        Board.pieces[p.getPiece().ordinal() * ((player ^ 1) + 1)].xorWith(fromToBB);
 
-        if (p.getType() == 0) {
-          Board.pieces[p.getPieceCI() * (player + 1)] ^= toBB;
+        if (p.getType() == MoveType.CAPTURE) {
+          Board.pieces[p.getPieceC().ordinal() * (player + 1)].xorWith(toBB);
         } // Capured piece gets removed
 
         setGeneral(fromToBB, player); // Sets occupied and empty + change current player
@@ -266,7 +242,7 @@ public class Moves {
     }
   }
 
-  public void undoMove(int player, Move m) {
+  public static void undoMove(int player, Move m) {
     if (MoveHistory.getSize() > 0) {
       Move p;
       if (m == null) {
@@ -275,60 +251,56 @@ public class Moves {
         p = m.flipMove(); // If move has been provided, dont get from move history
       }
 
-      if (p.getType() == 2) { // Castle
+      if (p.getType() == MoveType.CASTLE) { // Castle
         int k = p.getLS() + (player * 2);
-        long fromToBBK = (1L << BoardConstants.INITIAL_KING_POSITIONS[k])
-            ^ (1L << BoardConstants.FINAL_KING_POSITIONS[k]);
-        long fromToBBR = (1L << BoardConstants.INITIAL_ROOK_POSITIONS[k]
-            ^ (1L << BoardConstants.FINAL_ROOK_POSITIONS[k]));
+        long fromToBBK = (1L << BoardConstants.INITIAL_KING_POSITIONS[k]) ^ (1L << BoardConstants.FINAL_KING_POSITIONS[k]);
+        long fromToBBR = (1L << BoardConstants.INITIAL_ROOK_POSITIONS[k] ^ (1L << BoardConstants.FINAL_ROOK_POSITIONS[k]));
 
-        Board.pieces[Piece.ROOK * (player + 1)] ^= fromToBBR; // Sets piece to previous location
-        Board.pieces[Piece.KING * (player + 1)] ^= fromToBBK;
+        Board.pieces[PieceType.ROOK.ordinal() * (player + 1)].xorWith(fromToBBR); // Sets piece to previous location
+        Board.pieces[PieceType.KING.ordinal() * (player + 1)].xorWith(fromToBBK);
 
         setGeneral((fromToBBR | fromToBBK), player);
         setCastleStatus(p.getLS(), player, false); // Updates castle ability
 
-      } else if (p.getType() == 4) { // Promotion
+      } else if (p.getType() == MoveType.PROMOTION) { // Promotion
         long toBB = 0L, fromBB = 0L, fromToBB = 0L;
         fromBB = (1L << p.getShiftFrom());
         toBB = (1L << p.getShiftTo());
         fromToBB = fromBB ^ toBB;
 
-        Board.pieces[p.getPieceI() * (player + 1)] ^= fromBB; // Removes the promoted piece
-        Board.pieces[Piece.PAWN * (player + 1)] ^= toBB; // Adds a pawn to the board
+        Board.pieces[p.getPiece().ordinal() * (player + 1)].xorWith(fromBB); // Removes the promoted piece
+        Board.pieces[PieceType.PAWN.ordinal() * (player + 1)].xorWith(toBB); // Adds a pawn to the board
 
-        if (p.getPieceCI() != -1) {
-          Board.pieces[p.getPieceCI() * ((player ^ 1) + 1)] ^= fromBB;
-        }
+        if (p.getPieceC() != null)
+          Board.pieces[p.getPieceC().ordinal() * ((player ^ 1) + 1)].xorWith(fromBB);
         setGeneral(fromToBB, player); // Updates occupied and empty bitboards
 
-      } else if (p.getType() == 3) { // En Passant
+      } else if (p.getType() == MoveType.ENPASSANT) { // En Passant
         long toBB = 0L, fromBB = 0L, fromToBB = 0L;
         fromBB = 1L << p.getShiftFrom();
         toBB = 1L << p.getShiftTo();
         fromToBB = fromBB ^ toBB;
 
         // Place captured piece back in correct location
-        Board.pieces[Piece.PAWN * (p.getPlayer() + 1)] ^= fromToBB;
+        Board.pieces[PieceType.PAWN.ordinal() * (p.getPlayer() + 1)].xorWith(fromToBB);
         if (p.getPlayer() == 0) {
-          Board.pieces[Piece.PAWN * ((p.getPlayer() ^ 1) + 1)] ^= (northOne(fromBB));
+          Board.pieces[PieceType.PAWN.ordinal() * ((p.getPlayer() ^ 1) + 1)].xorWith(northOne(fromBB));
           setGeneral(northOne(fromBB) | fromToBB, player);
         } else {
-          Board.pieces[Piece.PAWN * ((p.getPlayer() ^ 1) + 1)] ^= (southOne(fromBB));
+          Board.pieces[PieceType.PAWN.ordinal() * ((p.getPlayer() ^ 1) + 1)].xorWith(southOne(fromBB));
           setGeneral(southOne(fromBB) | fromToBB, player);
         }
       } else { // Move or capture
         long toBB = 0L, fromBB = 0L, fromToBB = 0L;
-        int pieceI = p.getPieceI(); // Get the correct piece from the previous move
+        int piece = p.getPiece().ordinal(); // Get the correct piece from the previous move
         fromBB = (1L << p.getShiftFrom());
         toBB = (1L << p.getShiftTo());
         fromToBB = fromBB ^ toBB;
 
-        Board.pieces[pieceI * (player + 1)] ^= fromToBB;
+        Board.pieces[piece * (player + 1)].xorWith(fromToBB);
 
-        if (p.getType() == 0) {
-          Board.pieces[p.getPieceCI() * ((player ^ 1) + 1)] ^= fromBB;
-        }
+        if (p.getType() == MoveType.CAPTURE)
+          Board.pieces[p.getPieceC().ordinal() * ((player ^ 1) + 1)].xorWith(fromBB);
 
         setGeneral(fromToBB, player);
       }
@@ -337,18 +309,16 @@ public class Moves {
     }
   }
 
-  public void forfitCurrent() {
-    int v =
-        Utils.showDialog("Forfeit", "Are you sure you want to forfit?", new Object[] {"Yes", "No"});
+  public static void forfitCurrent() {
+    int v = Utils.showDialog("Forfeit", "Are you sure you want to forfit?", new Object[] {"Yes", "No"});
     if ((v != -1) && (v == 0)) { // Allows the player to forfeit at any point in the game
       if (Board.getPlayer() == 0) {
         v = Utils.showDialog("Forefit", "White has forfeit the match! \nBlack has won.\nGame Over");
       } else {
         v = Utils.showDialog("Forefit", "Black has forfeit the match! \nWhite has won.\nGame Over");
       }
-      if ((v != -1) && (v == 0)) {
+      if ((v != -1) && (v == 0)) //Reset bitboards
         Board.reset();
-      } // Reset bitboards
     }
   }
 
@@ -360,23 +330,21 @@ public class Moves {
     return 1L << Utils.getShiftTo(move);
   }
 
-  private void applyPieces(int pieceI, int pieceIC, int player, long fBB, long tBB,
-      boolean capture) {
+  private static void applyPieces(PieceType piece, PieceType pieceC, int player, long fBB, long tBB, boolean capture) {
     long fTBB = fBB ^ tBB;
-    Board.getPieceBoard(pieceI, player) ^= fTBB; // Applies the data to board based on bitboards
-    if (capture) {
-      Board.pieces[pieceIC * ((player ^ 1) + 1)] ^= tBB;
-    } // If capture, handle bitboards
+    Board.pieces[piece.ordinal() * (player + 1)].xorWith(fTBB); // Applies the data to board based on bitboards
+    if (capture)
+      Board.pieces[pieceC.ordinal() * ((player ^ 1) + 1)].xorWith(tBB);
     setGeneral(fTBB, player ^ 1); // Sets the current player, empty and occupied bitboards
   }
 
-  private void setGeneral(long ftBB, int player) {
+  private static void setGeneral(long ftBB, int player) {
     Board.setEmpty(Board.getEmpty() ^ ftBB); // Sets current empty bitboard
     Board.setOccupied(); // Sets the empty bitboard
     Board.setPlayer(player); // Sets the current player
   }
 
-  private void setCastleStatus(int ls, int p, boolean s) {
+  private static void setCastleStatus(int ls, int p, boolean s) {
     if (ls == 0) { // Sets long and short ability based on player colour
       if (p == 0) {
         Board.setCWL(s); // White queen side

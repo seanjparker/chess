@@ -1,20 +1,22 @@
-package chess.core.initialize;
+package chess.core;
 
 import chess.core.bitboards.Board;
 import chess.core.bitboards.Pair;
+import chess.core.bitboards.PlayerColour;
+import chess.core.utils.Utils;
 
 public class BitboardInit {
 
   public static void initBitboards() {
     String ChessBoard[][] =
-        {{"r", "n", "b", "q", "k", "b", "n", "r"},
-         {"p", "p", "p", "p", "p", "p", "p", "p"},
-         {" ", " ", " ", " ", " ", " ", " ", " "}, 
-         {" ", " ", " ", " ", " ", " ", " ", " "},
-         {" ", " ", " ", " ", " ", " ", " ", " "}, 
-         {" ", " ", " ", " ", " ", " ", " ", " "},
-         {"P", "P", "P", "P", "P", "P", "P", "P"}, 
-         {"R", "N", "B", "Q", "K", "B", "N", "R"}};
+      {{"r", "n", "b", "q", "k", "b", "n", "r"},
+          {"p", "p", "p", "p", "p", "p", "p", "p"},
+          {" ", " ", " ", " ", " ", " ", " ", " "}, 
+          {" ", " ", " ", " ", " ", " ", " ", " "},
+          {" ", " ", " ", " ", " ", " ", " ", " "}, 
+          {" ", " ", " ", " ", " ", " ", " ", " "},
+          {"P", "P", "P", "P", "P", "P", "P", "P"}, 
+          {"R", "N", "B", "Q", "K", "B", "N", "R"}};
 
     arrayToBitboard(ChessBoard);
   }
@@ -66,19 +68,19 @@ public class BitboardInit {
       }
     }
     // Apply all local bitboards to global bitboard class
-    Board.pieces[0] = new Pair(WP, 0); // Apply the generated bitboards to global
-    Board.pieces[1] = new Pair(WN, 0);
-    Board.pieces[2] = new Pair(WB, 0);
-    Board.pieces[3] = new Pair(WR, 0);
-    Board.pieces[4] = new Pair(WQ, 0);
-    Board.pieces[5] = new Pair(WK, 0);
+    Board.pieces[0] = new Pair(WP, PlayerColour.WHITE); // Apply the generated bitboards to global
+    Board.pieces[1] = new Pair(WN, PlayerColour.WHITE);
+    Board.pieces[2] = new Pair(WB, PlayerColour.WHITE);
+    Board.pieces[3] = new Pair(WQ, PlayerColour.WHITE);
+    Board.pieces[4] = new Pair(WR, PlayerColour.WHITE);
+    Board.pieces[5] = new Pair(WK, PlayerColour.WHITE);
 
-    Board.pieces[6] = new Pair(BP, 1);
-    Board.pieces[7] = new Pair(BN, 1);;
-    Board.pieces[8] = new Pair(BB, 1);;
-    Board.pieces[9] = new Pair(BR, 1);;
-    Board.pieces[10] = new Pair(BQ, 1);;
-    Board.pieces[11] = new Pair(BK, 1);;
+    Board.pieces[6] = new Pair(BP, PlayerColour.BLACK);
+    Board.pieces[7] = new Pair(BN, PlayerColour.BLACK);
+    Board.pieces[8] = new Pair(BB, PlayerColour.BLACK);
+    Board.pieces[9] = new Pair(BQ, PlayerColour.BLACK);
+    Board.pieces[10] = new Pair(BR, PlayerColour.BLACK);
+    Board.pieces[11] = new Pair(BK, PlayerColour.BLACK);
   }
 
   private static long stringToBitboard(String binaryString) {

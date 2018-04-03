@@ -1,4 +1,4 @@
-package chess.core.initialize;
+package chess.core;
 
 import chess.core.display.GUIHandler;
 

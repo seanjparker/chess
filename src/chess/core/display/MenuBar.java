@@ -19,7 +19,7 @@ public class MenuBar {
     JMenuBar menuBar;
     JMenu fileMenu, optionsMenu;
     JMenuItem createMenuItem, newGameMenuItem, loadGameMenuItem, saveGameMenuItem, forfeitMenuItem,
-        undoMenuItem, redoMenuItem, difficultyMenuItem;
+    undoMenuItem, redoMenuItem, difficultyMenuItem;
 
     menuBar = new JMenuBar();
 
@@ -69,26 +69,26 @@ public class MenuBar {
 
     undoMenuItem = new JMenuItem("Undo");
     undoMenuItem.addActionListener(e -> {
-      m.undoMove(Board.getPlayer() ^ 1, null);
+      Moves.undoMove(Board.getPlayer() ^ 1, null);
     });
 
     redoMenuItem = new JMenuItem("Redo");
     redoMenuItem.addActionListener(e -> {
-      m.redoMove(Board.getPlayer() ^ 1);
+      Moves.redoMove(Board.getPlayer() ^ 1);
     });
 
     forfeitMenuItem = new JMenuItem("Forfeit");
     forfeitMenuItem.addActionListener(e -> {
-      m.forfitCurrent();
+      Moves.forfitCurrent();
     });
 
     difficultyMenuItem = new JMenuItem("Difficulty");
     difficultyMenuItem.addActionListener(e -> {
       int diff = 1;
-      Object[] poss = {"Easy", "Medium", "Hard", "Insane"};
+      String[] poss = {"Easy", "Medium", "Hard", "Insane"};
       String s = (String) JOptionPane.showInputDialog(null, "Choose the AI difficulty:",
           "AI Difficulty", JOptionPane.INFORMATION_MESSAGE, null, poss, "Medium");
-      if ((s != null) && (s.length() > 0)) {
+      if (s != null && s.length() > 0) {
         switch (s) {
           case "Easy":
             diff = 1;

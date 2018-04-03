@@ -1,33 +1,32 @@
 package chess.core.display;
 
 import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Toolkit;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
+import chess.core.bitboards.BoardConstants;
 import chess.core.display.input.MouseHandler;
-import chess.core.initialize.StartMenu;
+import chess.core.display.window.StartMenu;
 
 public class GUIHandler extends JFrame {
   private final double UFPS = 60.0;
 
   private boolean running = true;
-  
+
   private final Chessboard cb;
 
   public GUIHandler() {
-    //final MouseHandler m = new MouseHandler();
     final int prefWidth = Toolkit.getDefaultToolkit().getScreenSize().width >> 1;
     final int prefHeight = Toolkit.getDefaultToolkit().getScreenSize().height >> 1;
-    
-    //final JMenuBar mb = new MenuBar().initMenuBar();
+
+    final JMenuBar mb = new MenuBar().initMenuBar();
     cb = new Chessboard(prefWidth, prefHeight);
+    cb.initChessboard(prefWidth, prefHeight);
     
-    setTitle("Ϲʜеss");
-    setLocationRelativeTo(null);
+    setTitle("Ϲhess");
     setDefaultCloseOperation(EXIT_ON_CLOSE);
-    //setJMenuBar(mb);
+    setJMenuBar(mb);
     
     Container contents = getContentPane();
     contents.setLayout(new GridLayout(1, 0));
@@ -35,23 +34,30 @@ public class GUIHandler extends JFrame {
 
     pack();
     
-    cb.initChessboard(prefWidth, prefHeight);
+    setLocationRelativeTo(null);
+
     new StartMenu().setVisible(true);
-    
+
     run();
   }
 
-
   private void update() {
-    /*
-     * if (GUI.gameOver == -1) { if (MouseHandler.pressedMouse) { ui.pressedEvent(); //When a click
-     * occured, set the flag MouseHandler.pressedMouse = false; } else if
-     * (MouseHandler.releasedMouse) { ui.possMoves = ""; ui.releasedEvent(); //If the user releases
-     * the click MouseHandler.releasedMouse = false; MouseHandler.draggedMouse = false; } else if
-     * (MouseHandler.draggedMouse) { ui.draggedEvent(); //If dragging the mouse, set flag required
-     * for animation } } else { ui.timedLossDialog(); //If game over, timed loss dialog, prevents
-     * overflow of renders }
-     */
+    //System.out.println("" + MouseHandler.mX + " -- " + MouseHandler.mY);
+    if (!this.isVisible() && BoardConstants.gamemode != null)
+      this.setVisible(true);
+    if (Chessboard.gameOver == -1) {
+      if (MouseHandler.pressedMouse) { 
+        cb.pressedEvent(); //When a click occured, set the flag
+        MouseHandler.pressedMouse = false; 
+      } else if (MouseHandler.releasedMouse) { 
+        cb.possMoves = ""; 
+        cb.releasedEvent(); //If the user releases the click
+        MouseHandler.releasedMouse = false; 
+        MouseHandler.draggedMouse = false; 
+      } else if (MouseHandler.draggedMouse) {
+        cb.draggedEvent(); //If dragging the mouse, set flag required for animation 
+      }
+    }  
   }
 
   public void run() {
@@ -71,9 +77,8 @@ public class GUIHandler extends JFrame {
         delta--;
       }
 
-      if ((System.currentTimeMillis() - timer) > 1000) {
+      if ((System.currentTimeMillis() - timer) > 1000)
         timer += 1000;
-      }
     }
   }
 }

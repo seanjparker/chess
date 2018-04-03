@@ -1,10 +1,11 @@
 package chess.core.bitboards;
 
 public class Pair {
-  private long piece;
-  private int colour;
 
-  public Pair(long piece, int colour) {
+  private long piece;
+  private PlayerColour colour;
+
+  public Pair(long piece, PlayerColour colour) {
     this.piece = piece;
     this.colour = colour;
   }
@@ -13,15 +14,15 @@ public class Pair {
     return piece;
   }
 
-  public void setPiece(long piece) {
-    this.piece = piece;
+  public void xorWith(long piece) {
+    this.piece ^= piece;
   }
 
-  public int getColour() {
+  public void andWith(long piece) {
+    this.piece &= piece;
+  }
+
+  public PlayerColour getColour() {
     return colour;
-  }
-
-  public void setColour(int colour) {
-    this.colour = colour;
   }
 }

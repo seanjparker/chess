@@ -1,4 +1,4 @@
-package chess.core.initialize;
+package chess.core.display.window;
 
 import java.awt.FlowLayout;
 import javax.swing.JButton;
@@ -6,17 +6,15 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import chess.core.bitboards.BoardConstants;
 import chess.core.bitboards.BoardConstants.Mode;
-import chess.core.display.GUIHandler;
 
 public class StartMenu extends JFrame {
   private JPanel contentPane;
   private JButton btnOnePl, btnTwoPl;
 
   public StartMenu() {
-    setTitle("Ϲʜеss | Menu");
+    setTitle("Chess | Menu");
     setResizable(false);
     setDefaultCloseOperation(EXIT_ON_CLOSE);
-    setLocationRelativeTo(null);
     toFront();
 
     contentPane = new JPanel();
@@ -34,6 +32,8 @@ public class StartMenu extends JFrame {
     getRootPane().setDefaultButton(btnTwoPl);
 
     pack();
+    
+    setLocationRelativeTo(null);
   }
 
   private void start(Mode m) {
