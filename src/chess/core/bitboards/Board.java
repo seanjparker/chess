@@ -342,7 +342,6 @@ public class Board {
       }
 
     }
-    System.out.println(piece + "  " + possMoves);
     return possMoves; // Retun string of all possible moves
   }
 
@@ -375,9 +374,9 @@ public class Board {
 
 
           resultMoves.add(new Move(possibleMove, moveType, player, piece, pieceCap));
-          bb &= bb - 1; // Get the next possible position of the current PieceType in the bitboard
+          bb &= bb - 1; // Get the next possible position of the current piece in the bitboard
         }
-        pieceBB &= pieceBB - 1; // Get the next piece  from the biboard
+        pieceBB &= pieceBB - 1; // Get the next piece from the biboard
       }
     }
     return resultMoves; // Return the list of move objects generated
@@ -386,7 +385,8 @@ public class Board {
   public static boolean kingInCheck(int player) {
     long k = getPieceBoard(PieceType.KING, player);
     long atk = Type.getUnsafe(player, empty); // Gets all unsafe locations
-     return (atk & k) != 0; // return true if king is being attacked by a PieceType
+    //return (atk & k) != 0; // return true if king is being attacked by a piece
+    return false;
   }
 
   public static boolean kingInCheckmate(int player) {

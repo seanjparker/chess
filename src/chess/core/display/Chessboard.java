@@ -168,28 +168,28 @@ public class Chessboard extends JPanel {
   }
 
   private void drawAlgebraic(Graphics2D g) {
-    if (!MoveHistory.isEmpty()) { // Have moves been played?
-      setText(g, Color.BLUE); // Sets the text colour
+    if (!MoveHistory.isEmpty()) {
+      setText(g, Color.BLUE); 
       FontMetrics c = g.getFontMetrics();
-      int x = 8 * squareSize;
-      int y = 128;
+      int x = (8 * squareSize) + 10;
+      int y = getHeight() / 3;
 
       int j = 0, end = (int) Math.floor((2 * (getHeight() - y)) / c.getHeight());
       int mhs = MoveHistory.getSize();
       if (((mhs * c.getHeight() / 2) + y) >= getHeight())
-        j += (mhs - end) % 2 != 0 ? (mhs - end) + 1 : mhs - end;
+        j += (j + (mhs - end)) % 2 != 0 ? (mhs - end) + 1 : mhs - end;
 
-      for (int i = j; i < MoveHistory.getSize(); i++) { // AT which move should we start drawing
+      for (int i = j; i < MoveHistory.getSize(); i++) { // At which move should we start drawing
         String alg = Utils.convertToAlgebraic(MoveHistory.getItemAt(i)); // Gets the text to draw
         int offX = c.stringWidth(Integer.toString((i / 2) + 1) + ". ");
-        int offY = (i - j) * c.getHeight() / 2; // Gets the height offset
+        int offY = ((i - j) / 2) * c.getHeight(); // Gets the height offset
 
         if (i % 2 == 0) {
           g.drawString(Integer.toString((i / 2) + 1) + ".", x, y + offY);
           g.drawString(alg, x + offX, y + offY); // Draws the algebraic move notation
         } else { // Draws a black move
           g.drawString(alg,
-              x + offX + c.stringWidth(Utils.convertToAlgebraic(MoveHistory.getItemAt(i - 1))),
+              x + offX + 10 + c.stringWidth(Utils.convertToAlgebraic(MoveHistory.getItemAt(i - 1))),
               y + offY);
         }
       }
