@@ -292,7 +292,7 @@ public class Moves {
         toBB = (1L << p.getShiftTo());
         fromToBB = fromBB ^ toBB;
 
-        Board.pieces[(player + 1) * Board.PIECES + piece].xorWith(fromToBB);
+        Board.pieces[player * Board.PIECES + piece].xorWith(fromToBB);
 
         if (p.getType() == MoveType.CAPTURE)
           Board.pieces[(player ^ 1) * Board.PIECES + p.getPieceC().ordinal()].xorWith(fromBB);

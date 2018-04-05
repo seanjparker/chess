@@ -53,7 +53,7 @@ public class Evaluation {
 
   private static int material(int player) {
     int s = 0;
-    for (int i = 0; i < Board.pieces.length; i++) { // Gets score baced on number of piece on board
+    for (int i = 0; i < Board.PIECES; i++) { // Gets score baced on number of piece on board
       s += Type.SCORE[i] * Utils.popCount(Board.getPieceBoard(i, player));
     }
     return s;
