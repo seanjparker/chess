@@ -74,7 +74,8 @@ public class Board {
           // If the last move was a double pawn push - enpassant possible
           // if moving for a capture on opposite colour & with the same x as opposing players
           // pawn, en passant
-          int shift = Utils.bitPosition(colour == 0 ? Moves.northOne(1L << to) : Moves.southOne(1L << to));
+          int shift =
+              Utils.bitPosition(colour == 0 ? Moves.northOne(1L << to) : Moves.southOne(1L << to));
           if (isPositionOcc(getPieceBoard(PieceType.PAWN, colour ^ 1), shift))
             return MoveType.ENPASSANT; // En passant may be possible
         }
@@ -146,41 +147,32 @@ public class Board {
 
   public static boolean validCastle(String move, int colour, int longShort) {
     long unsafe = getUnsafe(colour); // Get all unsafe positions for the current player
-
+    System.out.println(Long.toBinaryString(getPieceBoard(PieceType.KING, colour)));
+    System.out.println(Long.toBinaryString(unsafe));
     if ((unsafe & getPieceBoard(PieceType.KING, colour)) == 0) {
       if (getPlayer() == 0) { // The following determines if the castleing positions are not being attacked
-        if ((CWL == false) && (longShort == 0) && (((1L << BoardConstants.INITIAL_ROOK_POSITIONS[0])
-            & getPieceBoard(PieceType.ROOK, colour)) != 0)) {
-          if (((~empty | (unsafe & (1L << 58))) & ((1L << 57) | (1L << 58) | (1L << 59))) == 0) {
-            return true;
-          }
-        }
-        if ((CWS == false) && (longShort == 1) && (((1L << BoardConstants.INITIAL_ROOK_POSITIONS[1])
-            & getPieceBoard(PieceType.ROOK, colour)) != 0)) {
-          if ((((~empty) | unsafe) & ((1L << 62) | (1L << 61))) == 0) {
-            return true;
-          }
-        }
+        if (!CWL && longShort == 0 && ((1L << BoardConstants.INITIAL_ROOK_POSITIONS[0]
+            & getPieceBoard(PieceType.ROOK, colour)) != 0))
+          return (~empty | (unsafe & (1L << 57 | 1L << 58 | 1L << 59))) == 0;
+        if (!CWS && longShort == 1 && ((1L << BoardConstants.INITIAL_ROOK_POSITIONS[1]
+            & getPieceBoard(PieceType.ROOK, colour)) != 0))
+          return (~empty | (unsafe & (1L << 62 | 1L << 61))) == 0;
       } else {
-        if ((CBL == false) && (longShort == 0) && (((1L << BoardConstants.INITIAL_ROOK_POSITIONS[2])
-            & getPieceBoard(PieceType.ROOK, colour)) != 0)) {
-          if (((~empty | (unsafe & (1L << 2))) & ((1L << 1) | (1L << 2) | (1L << 3))) == 0) {
-            return true;
-          }
-        }
-        if ((CBS == false) && (longShort == 1) && (((1L << BoardConstants.INITIAL_ROOK_POSITIONS[3])
-            & getPieceBoard(PieceType.ROOK, colour)) != 0)) {
-          if (((~empty | unsafe) & ((1L << 5) | (1L << 6))) == 0) {
-            return true;
-          }
-        }
+        if (!CBL && longShort == 0 && ((1L << BoardConstants.INITIAL_ROOK_POSITIONS[2]
+            & getPieceBoard(PieceType.ROOK, colour)) != 0))
+          return (~empty | (unsafe & (1L << 1 | 1L << 2 | 1L << 3))) == 0;
+        if (!CBS && longShort == 1 && ((1L << BoardConstants.INITIAL_ROOK_POSITIONS[3]
+            & getPieceBoard(PieceType.ROOK, colour)) != 0))
+          return (~empty | (unsafe & (1L << 5 | 1L << 6))) == 0;
       }
     }
     return false;
   }
 
   public static boolean validPromotion(Move m) {
-    return Type.getPieceCapAndMove(m.getPlayer(), empty, wOccupied, bOccupied, (1L << Utils.getShiftFrom(m.getMoveReg())), PieceType.PAWN) >> (Utils.getShiftTo(m.getMoveReg()) & 1) == 1;
+    return Type.getPieceCapAndMove(m.getPlayer(), empty, wOccupied, bOccupied,
+        (1L << Utils.getShiftFrom(m.getMoveReg())),
+        PieceType.PAWN) >> (Utils.getShiftTo(m.getMoveReg()) & 1) == 1;
   }
 
   public static PieceType getBBIndex(String move, int colour) {
@@ -222,6 +214,7 @@ public class Board {
   }
 
   private static long getUnsafe(int player) {
+    setOccupied();
     return Type.getUnsafe(player, empty); // Gets all unsafe positions
   }
 

@@ -52,17 +52,17 @@ public class Pawn extends Piece {
 
   @Override
   public long bGetPossibleCaptures(long pieceBB, long wOccupied, long empty) {
-    return bCaptureTargets(pieceBB) & wOccupied & ~empty; // Blaack captures
+    return bCaptureTargets(pieceBB) & wOccupied & ~empty; // Black captures
   }
 
   @Override
   public long wGetPossiblePieces(long pieceBB, long empty, long bOcc) { // White moves and captures
-    return wGetPossibleTargets(pieceBB, empty) | (wGetPossibleCaptures(pieceBB, bOcc, empty));
+    return wGetPossibleTargets(pieceBB, empty) | wGetPossibleCaptures(pieceBB, bOcc, empty);
   }
 
   @Override
   public long bGetPossiblePieces(long pieceBB, long empty, long wOcc) { // Black moves and captures
-    return bGetPossibleTargets(pieceBB, empty) | (bGetPossibleCaptures(pieceBB, wOcc, empty));
+    return bGetPossibleTargets(pieceBB, empty) | bGetPossibleCaptures(pieceBB, wOcc, empty);
   }
 
 }
