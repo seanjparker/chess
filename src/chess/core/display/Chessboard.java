@@ -39,16 +39,16 @@ public class Chessboard extends JPanel {
 
   public Chessboard(int width, int height) {
     final MouseHandler m = new MouseHandler();
-    
+
     setPreferredSize(new Dimension(width, height));
-    
+
     addMouseListener(m);
     addMouseMotionListener(m);
   }
 
   protected void paintComponent(Graphics g) {
     Graphics2D g2 = (Graphics2D) g;
-    
+
     drawBoard(g2);
     //drawBorders(g2);
     drawPieces(g2, Board.pieces);
@@ -81,26 +81,26 @@ public class Chessboard extends JPanel {
           squareSize, squareSize);
     }
   }
-  
+
   public void drawBorders(Graphics g) {
     int border = 10;
     int board = 8 * squareSize;
     int boardPlusBorder = board + 2 * border;
-    
+
     //Color of the game board
     g.setColor(new Color(15, 70, 90));
-    
+
     // Lines to show bevel on edge
     g.fill3DRect(border, 0, board, border, true);
     g.fill3DRect(0, border, border, board, true);
     g.fill3DRect(border, border + board, board, border, true);
     g.fill3DRect(board + border, border, border, board, true);
-    
+
     // Surrounds the piece capture area
-    g.fillRect(boardPlusBorder, 0, WIDTH - boardPlusBorder, border); 
+    g.fillRect(boardPlusBorder, 0, WIDTH - boardPlusBorder, border);
     g.fillRect(boardPlusBorder, board + border, WIDTH - boardPlusBorder, border);
     g.fillRect(WIDTH - border, 0, border, boardPlusBorder);
-    
+
     // Single squares to show raised bevel
     g.fill3DRect(0, 0, border, border, true);
     g.fill3DRect(0, border + board, border, border, true);
@@ -169,7 +169,7 @@ public class Chessboard extends JPanel {
 
   private void drawAlgebraic(Graphics2D g) {
     if (!MoveHistory.isEmpty()) {
-      setText(g, Color.BLUE); 
+      setText(g, Color.BLUE);
       FontMetrics c = g.getFontMetrics();
       int x = (8 * squareSize) + 10;
       int y = getHeight() / 3;
