@@ -1,4 +1,5 @@
 # Chess
+
 A simple chess engine programmed in Java using only the standard libraries.
 
 ## Building a JAR file from source (Linux/Mac)
@@ -20,3 +21,6 @@ or, to launch the program using the compiled source
 $ java -cp bin chess.core.Main
 ```
 or double-click on the file `Chess.jar` to launch the program
+
+## License
+MIT
