@@ -1,5 +1,7 @@
 package chess.core.display;
 
+import java.awt.Toolkit;
+import java.awt.event.KeyEvent;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -28,9 +30,9 @@ public class MenuBar {
 
     newGameMenuItem = new JMenuItem("New Game");
     newGameMenuItem.addActionListener(e -> {
-      int s = JOptionPane.showConfirmDialog(null, "Are you sure you want to start a new game?",
-          "Restart", JOptionPane.YES_NO_OPTION);
-      if (s == 0)
+      boolean startNew = (JOptionPane.showConfirmDialog(null, "Are you sure you want to start a new game?",
+          "Restart", JOptionPane.YES_NO_OPTION) == 0);
+      if (startNew)
         Board.initChess();
     });
 
@@ -57,10 +59,8 @@ public class MenuBar {
     saveGameMenuItem = new JMenuItem("Save Game");
     saveGameMenuItem.addActionListener(e -> {
       String fileName = JOptionPane.showInputDialog("Enter the name of the save file");
-      if (fileName != null) {
-        FEN f = new FEN(fileName, Chessboard.FILE_PATH);
-        f.saveFEN();
-      }
+      if (fileName != null)
+        new FEN(fileName, Chessboard.FILE_PATH).saveFEN();
     });
     fileMenu.add(saveGameMenuItem);
 
@@ -108,10 +108,12 @@ public class MenuBar {
     });
 
     undoMenuItem.setAccelerator(
-        KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, java.awt.Event.CTRL_MASK));
+      KeyStroke.getKeyStroke(
+        KeyEvent.VK_Z, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
 
     redoMenuItem.setAccelerator(
-        KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Y, java.awt.Event.CTRL_MASK));
+      KeyStroke.getKeyStroke(
+        KeyEvent.VK_Y, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
 
     optionsMenu.add(forfeitMenuItem);
     optionsMenu.add(undoMenuItem);
