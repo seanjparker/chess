@@ -91,19 +91,19 @@ public class Type {
     long unsafe = 0L;
     int playerOffset = player * Board.PIECES;
     if (player == 0) { //Get the unsafe positions for a specific player
-      unsafe |= p.bGetPossiblePieces(Board.pieces[playerOffset + PieceType.PAWN.ordinal()].getPiece(), empty, Board.getWOcc());
-      unsafe |= n.bGetPossiblePieces(Board.pieces[playerOffset + PieceType.KNIGHT.ordinal()].getPiece(), empty, Board.getWOcc());
-      unsafe |= r.bGetPossiblePieces(Board.pieces[playerOffset + PieceType.ROOK.ordinal()].getPiece(), empty, Board.getWOcc());
-      unsafe |= b.bGetPossiblePieces(Board.pieces[playerOffset + PieceType.BISHOP.ordinal()].getPiece(), empty, Board.getWOcc());
-      unsafe |= q.bGetPossiblePieces(Board.pieces[playerOffset + PieceType.QUEEN.ordinal()].getPiece(), empty, Board.getWOcc());
-      unsafe |= k.bGetPossiblePieces(Board.pieces[playerOffset + PieceType.KING.ordinal()].getPiece(), empty, Board.getWOcc());
+      unsafe |= p.bGetPossiblePieces(Board.pieces[6].getPiece(), empty, Board.getWOcc());
+      unsafe |= n.bGetPossiblePieces(Board.pieces[7].getPiece(), empty, Board.getWOcc());
+      unsafe |= r.bGetPossiblePieces(Board.pieces[8].getPiece(), empty, Board.getWOcc());
+      unsafe |= b.bGetPossiblePieces(Board.pieces[9].getPiece(), empty, Board.getWOcc());
+      unsafe |= q.bGetPossiblePieces(Board.pieces[10].getPiece(), empty, Board.getWOcc());
+      unsafe |= k.bGetPossiblePieces(Board.pieces[11].getPiece(), empty, Board.getWOcc());
     } else {
-      unsafe |= p.wGetPossiblePieces(Board.pieces[playerOffset + PieceType.PAWN.ordinal()].getPiece(), empty, Board.getBOcc());
-      unsafe |= n.wGetPossiblePieces(Board.pieces[playerOffset + PieceType.KNIGHT.ordinal()].getPiece(), empty, Board.getBOcc());
-      unsafe |= r.wGetPossiblePieces(Board.pieces[playerOffset + PieceType.ROOK.ordinal()].getPiece(), empty, Board.getBOcc());
-      unsafe |= b.wGetPossiblePieces(Board.pieces[playerOffset + PieceType.BISHOP.ordinal()].getPiece(), empty, Board.getBOcc());
-      unsafe |= q.wGetPossiblePieces(Board.pieces[playerOffset + PieceType.QUEEN.ordinal()].getPiece(), empty, Board.getBOcc());
-      unsafe |= k.wGetPossiblePieces(Board.pieces[playerOffset + PieceType.KING.ordinal()].getPiece(), empty, Board.getBOcc());
+      unsafe |= p.wGetPossiblePieces(Board.pieces[0].getPiece(), empty, Board.getBOcc());
+      unsafe |= n.wGetPossiblePieces(Board.pieces[1].getPiece(), empty, Board.getBOcc());
+      unsafe |= r.wGetPossiblePieces(Board.pieces[2].getPiece(), empty, Board.getBOcc());
+      unsafe |= b.wGetPossiblePieces(Board.pieces[3].getPiece(), empty, Board.getBOcc());
+      unsafe |= q.wGetPossiblePieces(Board.pieces[4].getPiece(), empty, Board.getBOcc());
+      unsafe |= k.wGetPossiblePieces(Board.pieces[5].getPiece(), empty, Board.getBOcc());
     }
     return unsafe;
   }

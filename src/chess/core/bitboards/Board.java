@@ -64,7 +64,7 @@ public class Board {
     }
 
     if (isPositionOcc(getPieceBoard(PieceType.PAWN, colour), from))
-      if ((Utils.getShiftTo(move) < 8) || (Utils.getShiftTo(move) > 55)) 
+      if ((Utils.getShiftTo(move) < 8) || (Utils.getShiftTo(move) > 55))
         return MoveType.PROMOTION; // Promotion may be possible
 
     if (!MoveHistory.isEmpty() && isPositionOcc(getPieceBoard(PieceType.PAWN, colour), from)) {
@@ -147,23 +147,22 @@ public class Board {
 
   public static boolean validCastle(String move, int colour, int longShort) {
     long unsafe = getUnsafe(colour); // Get all unsafe positions for the current player
-    System.out.println(Long.toBinaryString(getPieceBoard(PieceType.KING, colour)));
-    System.out.println(Long.toBinaryString(unsafe));
+
     if ((unsafe & getPieceBoard(PieceType.KING, colour)) == 0) {
       if (getPlayer() == 0) { // The following determines if the castleing positions are not being attacked
-        if (!CWL && longShort == 0 && ((1L << BoardConstants.INITIAL_ROOK_POSITIONS[0]
+        if (!CWL && longShort == 0 && (((1L << BoardConstants.INITIAL_ROOK_POSITIONS[0])
             & getPieceBoard(PieceType.ROOK, colour)) != 0))
-          return (~empty | (unsafe & (1L << 57 | 1L << 58 | 1L << 59))) == 0;
+          return (((~empty | (unsafe & (1L << 58))) & ((1L << 57) | (1L << 58) | (1L << 59))) == 0);
         if (!CWS && longShort == 1 && ((1L << BoardConstants.INITIAL_ROOK_POSITIONS[1]
             & getPieceBoard(PieceType.ROOK, colour)) != 0))
-          return (~empty | (unsafe & (1L << 62 | 1L << 61))) == 0;
+          return (((~empty | unsafe) & ((1L << 62) | (1L << 61))) == 0);
       } else {
         if (!CBL && longShort == 0 && ((1L << BoardConstants.INITIAL_ROOK_POSITIONS[2]
             & getPieceBoard(PieceType.ROOK, colour)) != 0))
-          return (~empty | (unsafe & (1L << 1 | 1L << 2 | 1L << 3))) == 0;
+          return (((~empty | (unsafe & (1L << 2))) & ((1L << 1) | (1L << 2) | (1L << 3))) == 0);
         if (!CBS && longShort == 1 && ((1L << BoardConstants.INITIAL_ROOK_POSITIONS[3]
             & getPieceBoard(PieceType.ROOK, colour)) != 0))
-          return (~empty | (unsafe & (1L << 5 | 1L << 6))) == 0;
+          return (((~empty | unsafe) & ((1L << 5) | (1L << 6))) == 0);
       }
     }
     return false;
@@ -181,15 +180,15 @@ public class Board {
     return i != -1 ? PieceType.values()[i] : null; // Gets the captured PieceType
   }
 
-  public static PieceType getBBCapIndex(String move, int colour) {
-    int squareIndex = Utils.getShiftTo(move);
-    int i = getBBPiece(squareIndex, colour ^ 1); // Gets the captured PieceType
-    return i != -1 ? PieceType.values()[i] : null;
-  }
-
   public static PieceType getBBIndex(int rank, int file, int colour) {
     int squareIndex = Utils.convert2D1D(rank, file);
     int i = getBBPiece(squareIndex, colour); // Gets the captured PieceType
+    return i != -1 ? PieceType.values()[i] : null;
+  }
+
+  public static PieceType getBBCapIndex(String move, int colour) {
+    int squareIndex = Utils.getShiftTo(move);
+    int i = getBBPiece(squareIndex, colour ^ 1); // Gets the captured PieceType
     return i != -1 ? PieceType.values()[i] : null;
   }
 
@@ -214,7 +213,7 @@ public class Board {
   }
 
   private static long getUnsafe(int player) {
-    setOccupied();
+    //setOccupied();
     return Type.getUnsafe(player, empty); // Gets all unsafe positions
   }
 
@@ -296,7 +295,7 @@ public class Board {
 
   public static void setPlayer(int whichPlayer) {
     Board.whichPlayer = whichPlayer;
-  } 
+  }
 
   public static boolean isCreating() {
     return Board.isCreating;
@@ -320,7 +319,7 @@ public class Board {
     String possMoves = "";
     int rank = mX / sSize;
     int file = mY / sSize;
- 
+
     PieceType piece = getBBIndex(rank, file, whichPlayer);
 
     long bb = getBB(rank, file, whichPlayer) & (1L << Utils.convert2D1D(rank, file));
@@ -375,6 +374,13 @@ public class Board {
     return resultMoves; // Return the list of move objects generated
   }
 
+  /*
+   * Obviously, firstly check if by moving the king the opponent may run away from the check.
+     For each opponent's piece check if it is "forked" (that means that by moving it the opponents clears the way for any other check). Just "remove" it from the board and see if after that a new check is created.
+     If it is not forked: check if by moving that piece the opponent may block the check condition. This is done by intersecting two subsets of cells: one is a set of cells, where the opponent's piece may move, the other is a "line" between the opponent's king and the figure that attacks, and, therefore, "checks" it.
+     If these subsets intersect and the condition in the second step is passed - looks like the current situation is not a checkmate.
+     If there is no figure that is not forked AND can block the check - the situation is a checkmate.
+   */
   public static boolean kingInCheck(int player) {
     long k = getPieceBoard(PieceType.KING, player);
     long atk = Type.getUnsafe(player, empty); // Gets all unsafe locations

@@ -304,8 +304,9 @@ public class Chessboard extends JPanel {
   }
 
   private void checkmateDialog(int p) {
-    int v = Utils.showDialog("Checkmate!", (p == 0 ? "Black" : "White") + " has won! \nGame Over");
-    if (v == 0) { // Restart
+    boolean shouldRestart = (Utils.showDialog(
+        "Checkmate!", (p == 0 ? "Black" : "White") + " has won! \nGame Over")) == 0;
+    if (shouldRestart) { // Restart
       Board.reset();
     } else { // Dont Restart
       MoveHistory.peekNext().setCheckmate(true);
