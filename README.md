@@ -2,6 +2,11 @@
 
 A simple chess engine programmed in Java using only the standard libraries.
 
+## Prerequisites
+Building the chess source requires Java (version 8 or later).
+
+Once installed, you can then build and run the program using the commands from the following section.
+
 ## Building a JAR file from source (Linux/Mac)
 Open terminal/console, change directory to top level of the chess folder
 Then, run the following command:
