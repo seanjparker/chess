@@ -141,7 +141,7 @@ public class Moves {
       Board.pieces[m.getPlayer() * Board.PIECES + PieceType.PAWN.ordinal()].xorWith(fromBB);
 
       if (m.getPieceC() != null) // Capture and promotion -- diagonal move + promotion
-        Board.pieces[m.getPieceC().ordinal() * ((m.getPlayer() ^ 1) + 1)].xorWith(toBB);
+        Board.pieces[((m.getPlayer() ^ 1) * Board.PIECES) + m.getPieceC().ordinal()].xorWith(toBB);
 
       setGeneral(fromToBB, m.getPlayer() ^ 1);
       if (add)

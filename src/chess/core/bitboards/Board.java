@@ -171,7 +171,7 @@ public class Board {
   public static boolean validPromotion(Move m) {
     return Type.getPieceCapAndMove(m.getPlayer(), empty, wOccupied, bOccupied,
         (1L << Utils.getShiftFrom(m.getMoveReg())),
-        PieceType.PAWN) >> (Utils.getShiftTo(m.getMoveReg()) & 1) == 1;
+        PieceType.PAWN) >> Utils.getShiftTo(m.getMoveReg()) == 1;
   }
 
   public static PieceType getBBIndex(String move, int colour) {
