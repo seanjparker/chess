@@ -244,12 +244,12 @@ public class Chessboard extends JPanel {
     }
     if (Board.isCreating()) { // Editing the board
       int shift = Utils.getShiftFrom("" + (nMY / squareSize) + (nMX / squareSize));
-      int pieceIndex = CreateBoard.pieceSelected;
-      int playerSelected = CreateBoard.whichSelected + 1;
+      PieceType pieceIndex = CreateBoard.pieceSelected;
+      int playerSelected = CreateBoard.whichSelected;
       if (((Board.getPieceBoard(pieceIndex, playerSelected) >> shift) & 1) == 0) {
-        Board.pieces[playerSelected * pieceIndex].xorWith(1L << shift);
+        Board.pieces[(playerSelected * Board.PIECES) + pieceIndex.ordinal()].xorWith(1L << shift);
       } else {
-        Board.pieces[playerSelected * pieceIndex].andWith(~(1L << shift));
+        Board.pieces[(playerSelected * Board.PIECES) + pieceIndex.ordinal()].andWith(~(1L << shift));
       }
     }
 

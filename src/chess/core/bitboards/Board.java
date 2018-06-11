@@ -218,7 +218,8 @@ public class Board {
   }
 
   public static void clear() {
-    pieces = new Pair[PIECES << 1];
+    for (Pair p : pieces)
+      p.andWith(0L);
     MoveHistory.clear(); // Removes all past moves that have been played
   }
 
@@ -384,8 +385,7 @@ public class Board {
   public static boolean kingInCheck(int player) {
     long k = getPieceBoard(PieceType.KING, player);
     long atk = Type.getUnsafe(player, empty); // Gets all unsafe locations
-    //return (atk & k) != 0; // return true if king is being attacked by a piece
-    return false;
+    return (atk & k) != 0; // return true if king is being attacked by a piece
   }
 
   public static boolean kingInCheckmate(int player) {
@@ -406,11 +406,10 @@ public class Board {
   }
 
   private static boolean quickCheckmate(int player) {
-    long atk = Type.getUnsafe(player, empty);
     long k = Type.getPieceCapAndMove(player, empty, wOccupied, bOccupied,
         getPieceBoard(PieceType.KING, player), PieceType.KING);
-    long r = k & atk;
-    return r != 0;
+    long atk = Type.getUnsafe(player, empty);
+    return (k & atk) != 0;
   }
 
   private static boolean isPositionOcc(long bb, int shift) {

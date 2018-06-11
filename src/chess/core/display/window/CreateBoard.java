@@ -1,7 +1,5 @@
 package chess.core.display.window;
 
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.ButtonGroup;
@@ -11,13 +9,16 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.border.EmptyBorder;
 import chess.core.bitboards.Board;
+import chess.core.bitboards.moves.pieces.PieceType;
+import chess.core.display.input.MousePressListener;
 
 public class CreateBoard extends JFrame {
 
   private JPanel contentPane; //Panel for containing all buttons
-  private final ButtonGroup buttonGroup = new ButtonGroup(); //New button group(radio buttons)
+  private final ButtonGroup pieceBtnGroup = new ButtonGroup(); //New button group(radio buttons)
+  private final ButtonGroup colBtnGroup = new ButtonGroup();
   public static int whichSelected = 0; //White = 0, Black = 1
-  public static int pieceSelected = 0; //Piece index selected when editing the board
+  public static PieceType pieceSelected = null; //Piece index selected when editing the board
 
   public CreateBoard() {
     addWindowListener(new WindowAdapter() {
@@ -38,114 +39,83 @@ public class CreateBoard extends JFrame {
     setContentPane(contentPane);
     contentPane.setLayout(null);
 
-    JButton btnBlack = new JButton("Black"); //Create a new button
-    btnBlack.addMouseListener(new MouseAdapter() {
-      @Override
-      public void mouseClicked(MouseEvent e) {
-        whichSelected = 1; //Black is selected
-      }
-    });
-    btnBlack.setBounds(20, 11, 150, 23);
-    contentPane.add(btnBlack); //Add button to content pane
+    JRadioButton rdbtnBlack = new JRadioButton("Black"); //Create a new button
+    rdbtnBlack.addMouseListener((MousePressListener) e ->
+      whichSelected = 1 //Black is selected
+    );
+    colBtnGroup.add(rdbtnBlack);
+    rdbtnBlack.setBounds(30, 10, 80, 23);
+    contentPane.add(rdbtnBlack); //Add button to content pane
 
-    JButton btnWhite = new JButton("White"); //New button
-    btnWhite.addMouseListener(new MouseAdapter() {
-      @Override
-      public void mouseClicked(MouseEvent e) {
-        whichSelected = 0; //White is selected
-      }
-    });
-    btnWhite.setBounds(20, 123, 150, 23);
-    contentPane.add(btnWhite); //Add button
+    JRadioButton rdbtnWhite = new JRadioButton("White"); //New button
+    rdbtnWhite.addMouseListener((MousePressListener) e ->
+      whichSelected = 0 //White is selected
+    );
+    colBtnGroup.add(rdbtnWhite);
+    rdbtnWhite.setBounds(110, 10, 80, 23);
+    contentPane.add(rdbtnWhite); //Add button
 
     JRadioButton rdbtnKing = new JRadioButton("King");
-    rdbtnKing.addMouseListener(new MouseAdapter() {
-      @Override
-      public void mouseClicked(MouseEvent e) {
-        pieceSelected = 5; //King is selected event
-      }
-    });
-    buttonGroup.add(rdbtnKing);
-    rdbtnKing.setBounds(30, 41, 71, 23);
+    rdbtnKing.addMouseListener((MousePressListener) e ->
+      pieceSelected = PieceType.KING //King is selected event
+    );
+    pieceBtnGroup.add(rdbtnKing);
+    rdbtnKing.setBounds(30, 61, 80, 23);
     contentPane.add(rdbtnKing);
 
     JRadioButton rdbtnQueen = new JRadioButton("Queen");
-    rdbtnQueen.addMouseListener(new MouseAdapter() {
-      @Override
-      public void mouseClicked(MouseEvent e) {
-        pieceSelected = 3; //Queen is selected event
-      }
-    });
-    buttonGroup.add(rdbtnQueen);
-    rdbtnQueen.setBounds(30, 67, 71, 23);
+    rdbtnQueen.addMouseListener((MousePressListener) e ->
+      pieceSelected = PieceType.QUEEN
+    );
+    pieceBtnGroup.add(rdbtnQueen);
+    rdbtnQueen.setBounds(30, 87, 80, 23);
     contentPane.add(rdbtnQueen);
 
     JRadioButton rdbtnRook = new JRadioButton("Rook");
-    rdbtnRook.addMouseListener(new MouseAdapter() {
-      @Override
-      public void mouseClicked(MouseEvent e) {
-        pieceSelected = 4; //Rook is selected event
-      }
-    });
-    buttonGroup.add(rdbtnRook);
-    rdbtnRook.setBounds(30, 93, 71, 23);
+    rdbtnRook.addMouseListener((MousePressListener) e ->
+      pieceSelected = PieceType.ROOK //Rook is selected event
+    );
+    pieceBtnGroup.add(rdbtnRook);
+    rdbtnRook.setBounds(30, 113, 80, 23);
     contentPane.add(rdbtnRook);
 
     JRadioButton rdbtnBishop = new JRadioButton("Bishop");
-    rdbtnBishop.addMouseListener(new MouseAdapter() {
-      @Override
-      public void mouseClicked(MouseEvent e) {
-        pieceSelected = 1; //Bishop is selected event
-      }
-    });
-    buttonGroup.add(rdbtnBishop);
-    rdbtnBishop.setBounds(103, 41, 67, 23);
+    rdbtnBishop.addMouseListener((MousePressListener) e ->
+      pieceSelected = PieceType.BISHOP //Bishop is selected event
+    );
+    pieceBtnGroup.add(rdbtnBishop);
+    rdbtnBishop.setBounds(103, 61, 80, 23);
     contentPane.add(rdbtnBishop);
 
     JRadioButton rdbtnKnight = new JRadioButton("Knight");
-    rdbtnKnight.addMouseListener(new MouseAdapter() {
-      @Override
-      public void mouseClicked(MouseEvent e) {
-        pieceSelected = 2; //Knight is selected event
-      }
-    });
-    buttonGroup.add(rdbtnKnight);
-    rdbtnKnight.setBounds(103, 67, 67, 23);
+    rdbtnKnight.addMouseListener((MousePressListener) e ->
+      pieceSelected = PieceType.KNIGHT //Knight is selected event
+    );
+    pieceBtnGroup.add(rdbtnKnight);
+    rdbtnKnight.setBounds(103, 87, 80, 23);
     contentPane.add(rdbtnKnight);
 
     JRadioButton rdbtnPawn = new JRadioButton("Pawn");
-    rdbtnPawn.addMouseListener(new MouseAdapter() {
-      @Override
-      public void mouseClicked(MouseEvent e) {
-        pieceSelected = 0; //Pawn is selected event
-      }
-    });
-    buttonGroup.add(rdbtnPawn);
-    rdbtnPawn.setBounds(103, 93, 67, 23);
+    rdbtnPawn.addMouseListener((MousePressListener) e ->
+      pieceSelected = PieceType.PAWN //Pawn is selected event
+    );
+    pieceBtnGroup.add(rdbtnPawn);
+    rdbtnPawn.setBounds(103, 113, 80, 23);
     contentPane.add(rdbtnPawn);
 
     JButton btnClear = new JButton("Clear");
-    btnClear.addMouseListener(new MouseAdapter() {
-      @Override
-      public void mouseClicked(MouseEvent e) {
-        clearBoards(); //Clears the chess board
-      }
-    });
+    btnClear.addMouseListener((MousePressListener) e ->
+      clearBoards() //Clears the chess board
+    );
     btnClear.setBounds(193, 11, 67, 135);
     contentPane.add(btnClear);
 
     JButton btnReset = new JButton("Reset");
-    btnReset.addMouseListener(new MouseAdapter() {
-      @Override
-      public void mouseClicked(MouseEvent e) {
-        resetBoards(); //Resets the chessboard to its original state
-      }
-    });
+    btnReset.addMouseListener((MousePressListener) e ->
+      resetBoards() //Resets the chessboard to its original state
+    );
     btnReset.setBounds(270, 11, 74, 135);
     contentPane.add(btnReset);
-
-    rdbtnPawn.setSelected(true); //Sets the default selected
-    btnWhite.setSelected(true); //Sets the default selected
   }
 
   private void clearBoards() { Board.clear(); } //Clear the chessboard
