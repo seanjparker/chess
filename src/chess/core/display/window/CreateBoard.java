@@ -18,7 +18,7 @@ public class CreateBoard extends JFrame {
   private final ButtonGroup pieceBtnGroup = new ButtonGroup(); //New button group(radio buttons)
   private final ButtonGroup colBtnGroup = new ButtonGroup();
   public static int whichSelected = 0; //White = 0, Black = 1
-  public static PieceType pieceSelected = null; //Piece index selected when editing the board
+  public static PieceType pieceSelected = PieceType.KING; //Piece index selected when editing the board
 
   public CreateBoard() {
     addWindowListener(new WindowAdapter() {
@@ -116,6 +116,10 @@ public class CreateBoard extends JFrame {
     );
     btnReset.setBounds(270, 11, 74, 135);
     contentPane.add(btnReset);
+    
+    //Set default radio buttons
+    rdbtnKing.setSelected(true);
+    rdbtnWhite.setSelected(true);
   }
 
   private void clearBoards() { Board.clear(); } //Clear the chessboard

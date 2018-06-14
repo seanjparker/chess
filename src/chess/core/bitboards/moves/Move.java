@@ -58,4 +58,9 @@ public class Move {
   public void setPlayerWon(int player) { this.playerWon = player; } //Sets which player won
   public void setScore(int score) { this.score = score; } //Gets the score for the current node
   public int getScore() { return this.score; } //Gets the score for the current node
+  
+  @Override
+  public String toString() {
+    return piece.toString() + " : " + move + " : " + moveType.toString();
+  }
 }

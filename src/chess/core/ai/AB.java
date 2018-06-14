@@ -15,7 +15,7 @@ public class AB {
       m.setScore(Evaluation.eval(player));
       return m;
     } // If at leaf node, evaluate board
-    List<Move> moves = Board.getAIMoves(player); // Gets a list of current possible moves
+    List<Move> moves = Board.getPossibleMoves(player); // Gets a list of current possible moves
     if (moves.size() > 0) {
       moves = sortMoves(moves); // Sorts the moves from best to worst
       for (Move currentMove : moves) {
@@ -44,7 +44,7 @@ public class AB {
       m.setScore(-Evaluation.eval(player));
       return m;
     }
-    List<Move> moves = Board.getAIMoves(player);
+    List<Move> moves = Board.getPossibleMoves(player);
     if (moves.size() > 0) {
       moves = sortMoves(moves);
       for (Move currentMove : moves) {

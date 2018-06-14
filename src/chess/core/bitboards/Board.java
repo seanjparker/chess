@@ -338,7 +338,7 @@ public class Board {
     return possMoves; // Retun string of all possible moves
   }
 
-  public static List<Move> getAIMoves(int player) { // Gets all possible AI moves for all pieces
+  public static List<Move> getPossibleMoves(int player) { // Gets all possible AI moves for all pieces
     long bb = 0L;
     String possibleMove = "";
     List<Move> resultMoves = new ArrayList<Move>();
@@ -362,7 +362,7 @@ public class Board {
             piece = getBBIndex(possibleMove, player);
           if (moveType == MoveType.CAPTURE || moveType == MoveType.PROMOTION)
             pieceCap = getBBCapIndex(possibleMove, player);
-          if (moveType == MoveType.PROMOTION) // Force the Ai to promote to queen (almost always the best move)
+          if (moveType == MoveType.PROMOTION) // Force to promote to queen (almost always the best move)
             piece = PieceType.QUEEN;
 
 
@@ -375,13 +375,6 @@ public class Board {
     return resultMoves; // Return the list of move objects generated
   }
 
-  /*
-   * Obviously, firstly check if by moving the king the opponent may run away from the check.
-     For each opponent's piece check if it is "forked" (that means that by moving it the opponents clears the way for any other check). Just "remove" it from the board and see if after that a new check is created.
-     If it is not forked: check if by moving that piece the opponent may block the check condition. This is done by intersecting two subsets of cells: one is a set of cells, where the opponent's piece may move, the other is a "line" between the opponent's king and the figure that attacks, and, therefore, "checks" it.
-     If these subsets intersect and the condition in the second step is passed - looks like the current situation is not a checkmate.
-     If there is no figure that is not forked AND can block the check - the situation is a checkmate.
-   */
   public static boolean kingInCheck(int player) {
     long k = getPieceBoard(PieceType.KING, player);
     long atk = Type.getUnsafe(player, empty); // Gets all unsafe locations
@@ -389,27 +382,33 @@ public class Board {
   }
 
   public static boolean kingInCheckmate(int player) {
-    if (quickCheckmate(player)) {
-      boolean checkmate = true;
-      List<Move> oneply = getAIMoves(player);
-      for (Move m : oneply) {
-        if (checkmate) {
-          Moves.applyMove(m, player, m.getType(), m.getMoveReg(), false);
-          if (!kingInCheck(player))
-            checkmate = false;
+    //First, check if the king can escape check itself
+    if (!canKingEscape(player)) {
+      
+      //Next, see if we can move one of out pieces to prevent check
+      List<Move> onePly = getPossibleMoves(player);
+      
+      for (Move m : onePly) {
+        Moves.applyMove(m, player, m.getType(), m.getMoveReg(), false);
+        
+        //In the event we have prevented check, undo the move and return
+        if (!kingInCheck(player)) {
           Moves.undoMove(player, m);
+          return false;
         }
+        Moves.undoMove(player, m);
       }
-      return checkmate;
+      return true;
     }
     return false;
   }
-
-  private static boolean quickCheckmate(int player) {
+  
+  //This method checks if we can run away from the check
+  private static boolean canKingEscape(int player) {
     long k = Type.getPieceCapAndMove(player, empty, wOccupied, bOccupied,
         getPieceBoard(PieceType.KING, player), PieceType.KING);
     long atk = Type.getUnsafe(player, empty);
-    return (k & atk) != 0;
+    return (k & atk) == 0;
   }
 
   private static boolean isPositionOcc(long bb, int shift) {
