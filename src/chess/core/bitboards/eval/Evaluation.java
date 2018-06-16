@@ -53,56 +53,38 @@ public class Evaluation {
 
   private static int material(int player) {
     int s = 0;
-    for (int i = 0; i < Board.PIECES; i++) { // Gets score baced on number of piece on board
-      s += Type.SCORE[i] * Utils.popCount(Board.getPieceBoard(i, player));
-    }
+    for (PieceType pieceType : PieceType.values())
+      s += Type.SCORE[pieceType.ordinal()] * Utils.popCount(Board.getPieceBoard(pieceType.ordinal(), player));
     return s;
   }
 
   private static int kSaftey(int p) {
-    if (Board.kingInCheck(p)) {
-      if (Board.kingInCheckmate(p)) {
-        return -5000000;
-      } else {
-        return -500000;
-      }
-    }
+    //If the king is in checkmate or check, assign low score to prevent move chosen
+    if (Board.kingInCheck(p))
+      return Board.kingInCheckmate(p) ? -50000000 : -500000;
+    
     return 0; // Otherwise, this should not affect final score
   }
 
   private static int pieceSquareTables(int player, int material) {
     int s = 0;
     // Piece Placement
-    for (PieceType pt : PieceType.values()) {
-      long bb = Board.getPieceBoard(pt.ordinal(), player);
+    for (PieceType pieceType : PieceType.values()) {
+      long bb = Board.getPieceBoard(pieceType, player);
       while (bb != 0) {
         int bitPos = Utils.bitPosition(bb);
-        if (player == 1) {
-          bitPos ^= 56;
-        }
-
-        if (PieceType.PAWN == pt) {
-          s += PAWN[bitPos];
-          break;
-        } else if (PieceType.BISHOP == pt) {
-          s += BISHOP[bitPos];
-          break;
-        } else if (PieceType.KNIGHT == pt) {
-          s += KNIGHT[bitPos];
-          break;
-        } else if (PieceType.QUEEN == pt) {
-          s += QUEEN[bitPos];
-          break;
-        } else if (PieceType.ROOK == pt) {
-          s += ROOK[bitPos];
-          break;
-        } else if (PieceType.KING == pt) {
-          if (Math.floor((material / 100)) <= 13) {
-            s += KING_END[bitPos]; // End game
-          } else {
-            s += KING_MID[bitPos]; // Mid game
-          }
-          break;
+        if (player == 1) bitPos ^= 56;
+        
+        switch(pieceType) {
+          case PAWN: s += PAWN[bitPos]; break;
+          case BISHOP: s += BISHOP[bitPos]; break;
+          case KNIGHT: s += KNIGHT[bitPos]; break;
+          case QUEEN: s += QUEEN[bitPos]; break;
+          case ROOK: s += ROOK[bitPos]; break;
+          case KING: 
+            s += Math.floor(material / 100) <= 13 ? 
+                KING_END[bitPos] : KING_MID[bitPos];
+                break;
         }
         bb &= bb - 1; // Get the next bit in the bitboard
       }
