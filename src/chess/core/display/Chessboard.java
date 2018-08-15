@@ -27,7 +27,7 @@ import chess.core.utils.Utils;
 
 public class Chessboard extends JPanel {
   public static final String FILE_PATH = "./saves";
-  private static final String GFX_PATH = "/gfx/chessPieces.png";
+  private static final String GFX_PATH = "/chessPieces.png";
 
   public static int gameOver = -1;
 
@@ -79,6 +79,18 @@ public class Chessboard extends JPanel {
       g.setColor(new Color(135, 135, 135)); // Black square
       g.fillRect(((i + 1) % 8 - ((i + 1) / 8) % 2) * squareSize, ((i + 1) / 8) * squareSize,
           squareSize, squareSize);
+    }
+    
+    int fontHeight = g.getFontMetrics().getHeight();
+    for (int i = 0; i < 8; i++) {
+      if (i % 2 == 0) g.setColor(new Color(135, 135, 135));
+      else g.setColor(new Color(240, 240, 240));
+      
+      g.drawString(Integer.toString(8 - i), 0, fontHeight + squareSize * i);
+      
+      if (i % 2 == 0) g.setColor(new Color(240, 240, 240));
+      else g.setColor(new Color(135, 135, 135));
+      g.drawString(Character.toString((char) (97 + i)), squareSize * (i + 1) - 10, 8 * squareSize - 2);
     }
   }
 
