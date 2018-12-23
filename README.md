@@ -2,7 +2,7 @@
 
 A simple chess engine programmed in Java using only the standard libraries.
 
-![Chess engine running](https://seanjparker.me/images/repos/gh_main_chess.png)
+![Chess engine running](https://seanjparker.com/img/repos/gh_main_chess.png)
 
 ## Prerequisites
 Building the chess source requires Java (JDK v1.8 or later).
